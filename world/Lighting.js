@@ -8,7 +8,7 @@
  */
 (function (S) {
   'use strict';
-  const NAMES = ['flat', 'night-office', 'interrogation', 'server-room', 'newsroom', 'luxury', 'dorm-night', 'street-night'];
+  const NAMES = ['flat', 'night-office', 'interrogation', 'server-room', 'newsroom', 'luxury', 'dorm-night', 'street-night', 'paper-day', 'paper-night', 'paper-warm'];
   const TIMES = ['day', 'dusk', 'night'];
   const WEATHERS = ['clear', 'rain', 'haze'];
 
@@ -64,6 +64,19 @@
       wash(el, {background: 'radial-gradient(ellipse 60% 26% at 52% 82%, rgba(94,234,212,0.20), rgba(0,0,0,0) 72%)', mixBlendMode: 'screen'});
       wash(el, {background: 'linear-gradient(250deg, rgba(125,190,255,0.14) 0%, rgba(0,0,0,0) 38%)', mixBlendMode: 'screen'});
       wash(el, {background: 'radial-gradient(ellipse 80% 76% at 50% 46%, rgba(0,0,0,0) 56%, rgba(10,12,18,0.46) 100%)'});
+    },
+    'paper-day'(el) {
+      wash(el, {background: 'radial-gradient(ellipse 42% 36% at 28% 30%, rgba(255,244,220,0.55), rgba(0,0,0,0) 70%)', mixBlendMode: 'multiply'});
+      wash(el, {background: 'radial-gradient(ellipse 78% 72% at 50% 46%, rgba(0,0,0,0) 58%, rgba(40,32,24,0.38) 100%)'});
+    },
+    'paper-night'(el) {
+      wash(el, {background: 'rgba(20,24,32,0.18)', mixBlendMode: 'multiply'});
+      wash(el, {background: 'radial-gradient(ellipse 36% 32% at 22% 34%, rgba(255,214,160,0.45), rgba(0,0,0,0) 72%)', mixBlendMode: 'screen'});
+      wash(el, {background: 'radial-gradient(ellipse 76% 70% at 50% 46%, rgba(0,0,0,0) 52%, rgba(8,10,16,0.40) 100%)'});
+    },
+    'paper-warm'(el) {
+      wash(el, {background: 'radial-gradient(ellipse 40% 34% at 34% 38%, rgba(226,182,87,0.42), rgba(0,0,0,0) 70%)', mixBlendMode: 'multiply'});
+      wash(el, {background: 'radial-gradient(ellipse 78% 72% at 50% 48%, rgba(0,0,0,0) 56%, rgba(70,40,16,0.36) 100%)'});
     },
     'street-night'(el) {
       wash(el, {background: 'rgba(6,10,22,0.42)', mixBlendMode: 'multiply'});
@@ -142,6 +155,7 @@
           NAMES.forEach((n) => tl.to(presets[n], {opacity: n === p ? 1 : 0, duration: dur, ease: 'power1.out'}, t));
           TIMES.forEach((n) => tl.to(times[n], {opacity: n === tm ? 1 : 0, duration: dur, ease: 'power1.out'}, t));
           WEATHERS.forEach((n) => tl.to(weathers[n], {opacity: n === w ? 1 : 0, duration: dur, ease: 'power1.out'}, t));
+          tl.to(grainHost, {opacity: p.indexOf('paper-') === 0 ? 0.08 : 0.2, duration: dur, ease: 'power1.out'}, t);
         }
       };
       api.snap(o.preset || 'flat', o.time || 'day', o.weather || 'clear');

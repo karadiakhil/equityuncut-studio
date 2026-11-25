@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "id": "a2-expressions",
+  "duration": 1,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 4,
+  "stills": [0.6],
+  "shots": [
+    {"t": 0, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear",
+      "camera": {"x": 960, "y": 560, "zoom": 1.35, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "neutral", "cast": "Milo", "set": "paper", "x": 220, "y": 520, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "neutral"}]},
+    {"id": "annoyed", "cast": "Milo", "set": "paper", "x": 560, "y": 520, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "suspicious"}]},
+    {"id": "shocked", "cast": "Milo", "set": "paper", "x": 900, "y": 520, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "shocked"}]},
+    {"id": "angry", "cast": "Milo", "set": "paper", "x": 1240, "y": 520, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "angry"}]},
+    {"id": "happy", "cast": "Milo", "set": "paper", "x": 1580, "y": 520, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "happy"}]},
+    {"id": "sad", "cast": "Milo", "set": "paper", "x": 360, "y": 980, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "sad"}]},
+    {"id": "smug", "cast": "Milo", "set": "paper", "x": 700, "y": 980, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "smug"}]},
+    {"id": "tired", "cast": "Milo", "set": "paper", "x": 1040, "y": 980, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "tired"}]},
+    {"id": "dollar", "cast": "Milo", "set": "paper", "x": 1400, "y": 980, "scale": 0.55, "workstation": false, "keys": [{"t": 0.05, "expression": "dollar-eyes"}]}
+  ]
+}

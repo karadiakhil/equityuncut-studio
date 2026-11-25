@@ -19,7 +19,7 @@
   }
 
   const Kit = S.Kit = {
-    types: ['caption', 'kinetic', 'money', 'map', 'evidence', 'phone', 'laptop', 'stamp', 'card', 'newspaper', 'doc', 'folder'],
+    types: ['caption', 'kinetic', 'money', 'map', 'evidence', 'phone', 'laptop', 'stamp', 'card', 'newspaper', 'doc', 'folder', 'chart'],
     mount(tl, parent, item, brands) {
       const t = item.t || 0;
       const out = item.out;
@@ -35,6 +35,7 @@
       if (item.type === 'newspaper') return newspaper(tl, parent, item, t, out);
       if (item.type === 'doc') return doc(tl, parent, item, t, out);
       if (item.type === 'folder') return folder(tl, parent, item, t, out);
+      if (item.type === 'chart') return chart(tl, parent, item, t, out);
       throw new Error('unknown mograph ' + item.type);
     }
   };
@@ -76,22 +77,22 @@
   }
   function map(tl, parent, item, t, out) {
     const wrap = S.div({class: 'ss-map', 'data-collide': 'headline', style: {position: 'absolute', left: '250px', top: '180px', width: '1420px', height: '700px', opacity: 0}}, parent);
-    S.div({style: {position: 'absolute', inset: '0', background: 'rgba(8,12,20,0.92)', border: '2px solid #E7E5E4', borderRadius: '10px'}}, wrap);
-    S.div({text: item.title || 'ROUTE', style: {position: 'absolute', left: '36px', top: '24px', font: "400 28px 'Archivo Black', sans-serif", color: '#F8FAFC', letterSpacing: '0.08em'}}, wrap);
+    S.div({style: {position: 'absolute', inset: '0', background: '#E3E1D5', border: '4px solid #141114', borderRadius: '4px'}}, wrap);
+    S.div({text: item.title || 'ROUTE', style: {position: 'absolute', left: '36px', top: '24px', font: "400 28px 'Archivo Black', sans-serif", color: '#141114', letterSpacing: '0.08em'}}, wrap);
     const svg = S.svg('svg', {width: 1420, height: 700, viewBox: '0 0 1420 700', style: 'position:absolute;inset:0'}, wrap);
-    S.path(svg, 'M180,180 C260,120 340,200 420,160 C520,110 560,220 640,200 C700,184 760,120 860,150 C980,190 1040,120 1180,160 L1180,520 C1000,560 860,500 720,530 C560,566 420,500 280,540 C220,556 180,520 180,480 Z', '#16324A', null);
-    S.path(svg, 'M240,300 C320,260 380,340 460,300 C540,260 600,340 700,310 C820,270 900,360 1040,320 C1120,300 1160,250 1200,270 L1180,500 C1000,540 860,470 700,510 C520,556 380,480 260,510 Z', '#134E4A', null);
+    S.path(svg, 'M180,180 C260,120 340,200 420,160 C520,110 560,220 640,200 C700,184 760,120 860,150 C980,190 1040,120 1180,160 L1180,520 C1000,560 860,500 720,530 C560,566 420,500 280,540 C220,556 180,520 180,480 Z', '#C4B8A4', null, {stroke: '#28363F', 'stroke-width': 3});
+    S.path(svg, 'M240,300 C320,260 380,340 460,300 C540,260 600,340 700,310 C820,270 900,360 1040,320 C1120,300 1160,250 1200,270 L1180,500 C1000,540 860,470 700,510 C520,556 380,480 260,510 Z', '#D7C4A4', null, {stroke: '#28363F', 'stroke-width': 2});
     const a = [340, 250], c = [1080, 430], b = [700, 160];
     let d = 'M' + a[0] + ' ' + a[1] + ' Q' + b[0] + ' ' + b[1] + ' ' + c[0] + ' ' + c[1];
-    const route = S.path(svg, d, 'none', null, {stroke: '#F5C542', 'stroke-width': 5, fill: 'none', 'stroke-linecap': 'round'});
+    const route = S.path(svg, d, 'none', null, {stroke: '#141114', 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round', 'stroke-dasharray': '10 8'});
     const len = 900;
     route.setAttribute('stroke-dasharray', len);
     route.setAttribute('stroke-dashoffset', len);
     S.svg('circle', {cx: a[0], cy: a[1], r: 8, fill: '#F8FAFC', stroke: '#F5C542', 'stroke-width': 3}, svg);
     S.svg('circle', {cx: c[0], cy: c[1], r: 8, fill: '#F8FAFC', stroke: '#F87171', 'stroke-width': 3}, svg);
-    const from = S.svg('text', {x: a[0] - 10, y: a[1] + 36, 'font-family': 'Archivo Black, sans-serif', 'font-size': 18, fill: '#F8FAFC'}, svg);
+    const from = S.svg('text', {x: a[0] - 10, y: a[1] + 36, 'font-family': 'Kalam, cursive', 'font-size': 22, fill: '#141114'}, svg);
     from.textContent = item.from || 'ORIGIN';
-    const to = S.svg('text', {x: c[0] - 80, y: c[1] + 36, 'font-family': 'Archivo Black, sans-serif', 'font-size': 18, fill: '#F8FAFC'}, svg);
+    const to = S.svg('text', {x: c[0] - 80, y: c[1] + 36, 'font-family': 'Kalam, cursive', 'font-size': 22, fill: '#141114'}, svg);
     to.textContent = item.to || 'DESTINATION';
     if (item.via) {
       const via = S.svg('text', {x: 700, y: 130, 'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace', 'font-size': 16, fill: '#F5C542'}, svg);
@@ -189,7 +190,7 @@
     return el;
   }
   function card(tl, parent, item, t, out) {
-    const el = S.div({class: 'ss-card', 'data-collide': 'headline', style: {position: 'absolute', left: (item.x || 360) + 'px', top: (item.y || 280) + 'px', width: '1200px', minHeight: '280px', background: NIGHT, color: PAPER, padding: '36px 48px', opacity: 0, font: "700 64px Kalam, 'Comic Sans MS', cursive", lineHeight: 1.25}}, parent);
+    const el = S.div({class: 'ss-card', 'data-collide': 'headline', style: {position: 'absolute', left: (item.x || 360) + 'px', top: (item.y || 280) + 'px', width: '1200px', minHeight: '280px', background: NIGHT, color: PAPER, padding: '36px 48px', opacity: 0, font: "700 64px Kalam, cursive", lineHeight: 1.25}}, parent);
     const text = S.div({text: item.text || '', style: {clipPath: 'inset(0 100% 0 0)'}}, el);
     const dur = Math.max(0.2, (out || t + 1.8) - t);
     tl.fromTo(text, {clipPath: 'inset(0 100% 0 0)'}, {clipPath: 'inset(0 0% 0 0)', duration: Math.min(1.4, dur * 0.75), ease: 'none', immediateRender: false}, t + 0.08);
@@ -216,6 +217,30 @@
         tl.fromTo(b, {scaleX: 0}, {scaleX: 1, duration: 0.2, ease: 'power3.out', immediateRender: false}, t + 0.3 + i * 0.1);
       }
     });
+    hide(tl, el, t, out);
+    return el;
+  }
+  function chart(tl, parent, item, t, out) {
+    const el = S.div({class: 'ss-chart', 'data-collide': 'headline', style: {position: 'absolute', left: (item.x || 360) + 'px', top: (item.y || 220) + 'px', width: '1100px', height: '560px', background: '#E3E1D5', border: '4px solid #141114', opacity: 0}}, parent);
+    const svg = S.svg('svg', {width: 1100, height: 560, viewBox: '0 0 1100 560'}, el);
+    S.path(svg, 'M80,80 L80,480 L1020,480', 'none', null, {stroke: '#141114', 'stroke-width': 3, fill: 'none'});
+    const series = item.series || [12, 18, 9, 30, 22, 40];
+    const max = Math.max.apply(null, series.concat([1]));
+    const col = item.color === 'crash' ? '#D94A3A' : '#1F7A4D';
+    let d = '';
+    series.forEach((v, i) => {
+      const x = 120 + i * (860 / Math.max(1, series.length - 1));
+      const y = 460 - (v / max) * 340;
+      d += (i ? ' L' : 'M') + x.toFixed(1) + ',' + y.toFixed(1);
+      if (item.type === 'bar' || item.chart === 'bar') S.svg('rect', {x: x - 18, y: y, width: 36, height: 460 - y, fill: col, stroke: '#141114', 'stroke-width': 2}, svg);
+    });
+    if (!(item.chart === 'bar' || item.type === 'bar')) {
+      const line = S.path(svg, d, 'none', null, {stroke: col, 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round'});
+      const len = 1200;
+      line.setAttribute('stroke-dasharray', len);
+      line.setAttribute('stroke-dashoffset', len);
+      tl.fromTo(line, {attr: { 'stroke-dashoffset': len }}, {attr: { 'stroke-dashoffset': 0 }, duration: Math.max(0.4, (out || t + 2) - t - 0.4), ease: 'none', immediateRender: false}, t + 0.15);
+    }
     hide(tl, el, t, out);
     return el;
   }

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "id": "a1-snap",
+  "duration": 3.2,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 3,
+  "stills": [0.4, 1.2, 2.2],
+  "shots": [
+    {"t": 0, "dur": 3.2, "set": "paper", "lighting": "paper-day", "time": "day", "weather": "clear",
+      "camera": {"x": 960, "y": 620, "zoom": 1.25, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "paper", "x": 960, "scale": 1, "workstation": false,
+      "keys": [
+        {"t": 0.15, "gesture": "explain", "expression": "neutral", "ease": "snap"},
+        {"t": 1.1, "gesture": "point", "expression": "angry", "ease": "snap"},
+        {"t": 2.1, "gesture": "hands-up", "expression": "shocked", "ease": "snap"}
+      ]}
+  ]
+}

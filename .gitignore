@@ -7,8 +7,11 @@ out/
 previews/*
 !previews/engine-upgrade-p0/
 !previews/engine-upgrade-p0/**
+!previews/engine-upgrade-p1/
+!previews/engine-upgrade-p1/**
 renders/
 *.mp4
+!previews/engine-upgrade-p1/**/*.mp4
 *.mov
 *.wav
 *.mp3

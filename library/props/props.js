@@ -339,4 +339,45 @@
     S.svg('ellipse', {cx: 14, cy: -18, rx: 11, ry: 13, fill: '#2E8B57', stroke: H_DEEP, 'stroke-width': 3}, body);
     return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
   };
+  function houseBox(parent, o, name, w, h, fill) {
+    const made = house(parent, o, name);
+    S.svg('rect', {x: -w / 2, y: -h, width: w, height: h, rx: 3, fill: fill, stroke: H_DEEP, 'stroke-width': 3.5}, made.body);
+    return made;
+  }
+  P.housePhone = function (parent, o) {
+    const {g, body} = house(parent, o || {}, 'housePhone');
+    S.svg('rect', {x: -16, y: -48, width: 32, height: 56, rx: 5, fill: '#1C2430', stroke: H_DEEP, 'stroke-width': 3}, body);
+    S.svg('rect', {x: -12, y: -40, width: 24, height: 36, fill: '#5EEAD4'}, body);
+    S.onApply((t) => { body.setAttribute('opacity', (0.85 + 0.15 * Math.sin(t * 3)).toFixed(3)); }, 5);
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.houseLaptop = function (parent, o) {
+    const {g, body} = house(parent, o || {}, 'houseLaptop');
+    S.svg('rect', {x: -40, y: -8, width: 80, height: 10, fill: '#8E9298', stroke: H_DEEP, 'stroke-width': 3}, body);
+    S.svg('rect', {x: -34, y: -40, width: 68, height: 32, fill: '#1C2430', stroke: H_DEEP, 'stroke-width': 3}, body);
+    S.onApply((t) => { const glow = 0.45 + 0.25 * Math.sin(t * 2.2); body.lastChild.setAttribute('opacity', glow.toFixed(3)); }, 5);
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.houseDesk = function (parent, o) {
+    const {g, body} = houseBox(parent, o || {}, 'houseDesk', 220, 70, H_WOOD);
+    S.svg('rect', {x: -100, y: -78, width: 200, height: 10, fill: '#D7B48A', stroke: H_DEEP, 'stroke-width': 3}, body);
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.houseChair = function (parent, o) {
+    const {g, body} = house(parent, o || {}, 'houseChair');
+    S.svg('rect', {x: -28, y: -70, width: 56, height: 46, fill: '#5C6B73', stroke: H_DEEP, 'stroke-width': 3}, body);
+    S.svg('rect', {x: -32, y: -26, width: 64, height: 10, fill: '#3A2A1C', stroke: H_DEEP, 'stroke-width': 3}, body);
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.filingCabinet = function (parent, o) {
+    const made = houseBox(parent, o || {}, 'filingCabinet', 70, 110, '#8E9298');
+    [-70, -40, -10].forEach((y) => S.svg('rect', {x: -28, y: y, width: 56, height: 22, fill: 'none', stroke: H_DEEP, 'stroke-width': 2}, made.body));
+    return {g: made.g, parts: {}, animate(tl, s, e, op) { drop(made.body, tl, s, e, op); }};
+  };
+  P.houseServer = function (parent, o) {
+    const made = houseBox(parent, o || {}, 'houseServer', 90, 130, '#1C2430');
+    for (let i = 0; i < 5; i++) S.svg('circle', {cx: 28, cy: -110 + i * 20, r: 3, fill: i % 2 ? '#1F7A4D' : '#E2B657'}, made.body);
+    S.onApply((t) => { made.body.setAttribute('opacity', (0.92 + 0.08 * Math.sin(t * 8)).toFixed(3)); }, 5);
+    return {g: made.g, parts: {}, animate(tl, s, e, op) { drop(made.body, tl, s, e, op); }};
+  };
 })(window.Studio = window.Studio || {});

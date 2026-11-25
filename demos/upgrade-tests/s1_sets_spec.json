@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "id": "s1-sets",
+  "duration": 2,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 9,
+  "stills": [0.3, 1.4],
+  "shots": [
+    {"t": 0, "dur": 2, "set": "evidence-table", "lighting": "paper-warm", "time": "day", "weather": "clear",
+      "camera": {"x": 960, "y": 680, "zoom": 1.05, "preset": "static"}}
+  ],
+  "props": [
+    {"set": "evidence-table", "slot": "beat-a", "kind": "invoice", "scale": 1.2, "anim": {"at": 0.2}},
+    {"set": "evidence-table", "slot": "beat-b", "kind": "houseLaptop", "scale": 1.1, "anim": {"at": 0.55}},
+    {"set": "evidence-table", "slot": "beat-c", "kind": "housePhone", "scale": 1.4, "anim": {"at": 0.9}},
+    {"set": "evidence-table", "slot": "foreground", "kind": "deskLamp", "scale": 0.8, "anim": {"at": 0.15}}
+  ]
+}

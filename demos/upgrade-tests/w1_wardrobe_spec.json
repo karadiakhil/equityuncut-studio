@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "id": "w1-wardrobe",
+  "duration": 1,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 5,
+  "stills": [0.4],
+  "shots": [
+    {"t": 0, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear",
+      "camera": {"x": 960, "y": 700, "zoom": 1, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "sweater", "cast": "Milo", "set": "paper", "x": 200, "scale": 0.72, "workstation": false},
+    {"id": "stripe", "cast": "Milo", "set": "paper", "x": 520, "scale": 0.72, "workstation": false, "rig": {"outfit": "tee", "top": "#E3E1D5", "pattern": "stripe", "patternColor": "#1E2A44", "bottom": "#1E2A44"}},
+    {"id": "plaid", "cast": "TheSuit", "set": "paper", "x": 860, "scale": 0.72, "workstation": false, "rig": {"outfit": "blazer", "pattern": "plaid", "patternColor": "#28363F"}},
+    {"id": "check", "cast": "TheClipboard", "set": "paper", "x": 1200, "scale": 0.72, "workstation": false, "rig": {"outfit": "polo", "top": "#F7F4EE", "pattern": "check", "patternColor": "#C8302C", "bottom": "#1E2A44"}},
+    {"id": "hat", "cast": "TheSchemer", "set": "paper", "x": 1560, "scale": 0.72, "workstation": false, "keys": [{"t": 0.05, "acc": ["beanie"]}]}
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "id": "m2-data",
+  "duration": 3,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 7,
+  "stills": [0.8, 1.8, 2.6],
+  "shots": [
+    {"t": 0, "dur": 3, "set": "paper", "lighting": "paper-day", "time": "day", "weather": "clear",
+      "camera": {"x": 960, "y": 540, "zoom": 1, "preset": "static"}}
+  ],
+  "mograph": [
+    {"type": "map", "t": 0.1, "out": 2.8, "title": "THE ROUTE", "from": "RIGA", "to": "LIMASSOL"},
+    {"type": "chart", "t": 0.2, "out": 2.8, "x": 80, "y": 80, "chart": "line", "color": "growth", "series": [8, 14, 11, 22, 19, 30]},
+    {"type": "money", "t": 0.3, "out": 2.9, "from": 23, "to": 122, "prefix": "$", "suffix": "M", "dur": 1.4, "label": "THE TAKE", "x": 1500, "y": 240}
+  ]
+}

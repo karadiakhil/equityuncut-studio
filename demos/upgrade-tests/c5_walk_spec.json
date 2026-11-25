@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "id": "c5-walk",
+  "duration": 3,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 2,
+  "stills": [0.4, 1.5, 2.6],
+  "shots": [
+    {"t": 0, "dur": 3, "set": "paper", "lighting": "paper-day", "time": "day", "weather": "clear",
+      "camera": {"x": 900, "y": 700, "zoom": 1.05, "to": {"x": 1100, "y": 680, "zoom": 1.08}, "preset": "push"}}
+  ],
+  "characters": [
+    {"id": "walker", "cast": "Milo", "set": "paper", "x": 280, "view": "P", "scale": 0.9, "workstation": false,
+      "keys": [{"t": 0.15, "view": "P", "walk": {"from": 280, "to": 1500, "dur": 2.4}}]}
+  ]
+}

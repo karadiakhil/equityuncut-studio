@@ -257,11 +257,13 @@
       const p = Object.assign({}, PARAMS, cfg.rest || {}, opts.frozen ? {breathe: 0} : {}, opts.p || {});
       const tracks = {viseme: new S.Track(null), mood: new S.Track('REST'), handL: new S.Track(cfg.restHand || 'relaxed'),
         handR: new S.Track(cfg.restHandR || cfg.restHand || 'relaxed'), dollar: new S.Track(false), sweat: new S.Track(false),
-        acc: new S.Track(cfg.restAcc || []), held: new S.Track(null), lightSide: new S.Track(cfg.lightSide == null ? -1 : cfg.lightSide)};
+        acc: new S.Track(cfg.restAcc || []), held: new S.Track(null), lightSide: new S.Track(cfg.lightSide == null ? -1 : cfg.lightSide),
+        view: new S.Track(cfg.view || 'F'), arms: new S.Track(cfg.armMode === 'hug' ? 'hug' : 'noodle')};
       if (cfg.restHandL) tracks.handL = new S.Track(cfg.restHandL);
       if (cfg.restMood) tracks.mood = new S.Track(cfg.restMood);
       const rnd = S.rng(S.hash(id + ':blink'));
-      const blinks = []; if (!opts.frozen) for (let t = 0.4 + rnd() * 1.2; t < 900; t += 2.5 + rnd() * 1.5) blinks.push(t);   // frozen = a still photo (camera-off tile)
+      const blinkEvery = cfg.paper ? 3 : 2.5, blinkSpan = cfg.paper ? 2 : 1.5;
+      const blinks = []; if (!opts.frozen) for (let t = 0.4 + rnd() * 1.2; t < 900; t += blinkEvery + rnd() * blinkSpan) blinks.push(t);   // frozen = a still photo (camera-off tile)
       const sacc = [[0, 0, 0]]; if (!opts.frozen) for (let t = 0.3; t < 900; t += 0.7 + rnd() * 1.5) sacc.push([t, (rnd() - 0.5) * 0.5, (rnd() - 0.5) * 0.35]);
       const ch = {id, cfg, wrap, svg, n, p, tracks, blinks, extraBlinks: [], J, ctx};
 
@@ -313,7 +315,8 @@
           n[`foot-${s}`].setAttribute('transform', rot(p['foot' + s], J['ankle' + s]));
         });
         const br = Math.sin(t * Math.PI * 2 / 3.4) * p.breathe;
-        const torsoA = p.torso + br * 0.35, torsoS = 1 + br * 0.006;
+        const breathAmp = cfg.paper ? (cfg.breathAmp == null ? 0.02 : cfg.breathAmp) : 0.006;
+        const torsoA = p.torso + br * 0.35, torsoS = 1 + br * breathAmp;
         n.torso.setAttribute('transform', `${rot(torsoA, J.pelvis)} translate(0 ${J.pelvis[1]}) scale(1 ${torsoS.toFixed(4)}) translate(0 ${-J.pelvis[1]})`);
         if (n.under) {   // undo root (lean, facing, squash), pelvis and torso so the desk top stays planted
           const pv = J.pelvis, m = new DOMMatrix()
@@ -332,13 +335,22 @@
           n[`hand-${s}`].setAttribute('transform', rot(p['hand' + s], J['wrist' + s]));
           const pose = tracks['hand' + s].at(t);
           for (const k2 in n['poses' + s]) n['poses' + s][k2].setAttribute('display', k2 === pose ? 'inline' : 'none');
-          if (n.noodle) {   // one smooth ink curve shoulder > elbow > wrist (rig8 noodle arm), from the live FK chain
+          if (n.noodle) {   // noodle, or a short curve hugging the torso when the arms track says hug
             const sh = J['shoulder' + s], el = J['elbow' + s], wr = J['wrist' + s];
-            const a1 = R(p['arm' + s + 'U'] + k * br * 0.8), a2 = R(p['arm' + s + 'L']);
-            const rp = (q, c, a) => [c[0] + (q[0] - c[0]) * Math.cos(a) - (q[1] - c[1]) * Math.sin(a), c[1] + (q[0] - c[0]) * Math.sin(a) + (q[1] - c[1]) * Math.cos(a)];
-            const E = rp(el, sh, a1), W = rp(rp(wr, el, a2), sh, a1);
-            const cx = 2 * E[0] - (sh[0] + W[0]) / 2, cy = 2 * E[1] - (sh[1] + W[1]) / 2;
-            n.noodle[s].setAttribute('d', `M${sh[0].toFixed(1)} ${(sh[1] + 4).toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${W[0].toFixed(1)} ${W[1].toFixed(1)}`);
+            const hug = tracks.arms && tracks.arms.at(t) === 'hug';
+            n[`arm-${s}-upper`].setAttribute('display', hug ? 'none' : 'inline');
+            if (hug) {
+              const side = s === 'L' ? -1 : 1;
+              const x = side * 78, y0 = sh[1] + 6, y1 = sh[1] + 150;
+              n.noodle[s].setAttribute('d', `M${sh[0].toFixed(1)} ${y0.toFixed(1)} Q${(x).toFixed(1)} ${(y0 + 40).toFixed(1)} ${(x * 0.92).toFixed(1)} ${y1.toFixed(1)}`);
+              if (n.noodle[s].parentNode) n.noodle[s].parentNode.insertBefore(n.noodle[s], n.noodle[s].parentNode.firstChild);
+            } else {
+              const a1 = R(p['arm' + s + 'U'] + k * br * 0.8), a2 = R(p['arm' + s + 'L']);
+              const rp = (q, c, a) => [c[0] + (q[0] - c[0]) * Math.cos(a) - (q[1] - c[1]) * Math.sin(a), c[1] + (q[0] - c[0]) * Math.sin(a) + (q[1] - c[1]) * Math.cos(a)];
+              const E = rp(el, sh, a1), W = rp(rp(wr, el, a2), sh, a1);
+              const cx = 2 * E[0] - (sh[0] + W[0]) / 2, cy = 2 * E[1] - (sh[1] + W[1]) / 2;
+              n.noodle[s].setAttribute('d', `M${sh[0].toFixed(1)} ${(sh[1] + 4).toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${W[0].toFixed(1)} ${W[1].toFixed(1)}`);
+            }
           }
         });
         if (n.heldProps) { const held = tracks.held.at(t); for (const k2 in n.heldProps) n.heldProps[k2].setAttribute('display', k2 === held ? 'inline' : 'none'); }
@@ -404,6 +416,24 @@
         if (n.acc.cap) n.acc.cap.setAttribute('transform', `translate(${(p.turn * 6).toFixed(2)} ${(p.hairBounce * 0.4).toFixed(2)})`);
         ['mustache', 'nerd-glasses'].forEach((k2) => { if (n.acc[k2]) n.acc[k2].setAttribute('transform', `translate(${(p.turn * (k2 === 'mustache' ? 9 : 16)).toFixed(2)} ${(open * (k2 === 'mustache' ? 0.6 : 0)).toFixed(2)})`); });
         n.cheeks.setAttribute('opacity', p.blush.toFixed(3));
+        if (paper && tracks.view) {
+          const view = tracks.view.at(t) || 'F';
+          const back = view === 'B', prof = view === 'P', three = view === 'Q';
+          if (n['face-features']) n['face-features'].setAttribute('display', back ? 'none' : 'inline');
+          if (n.glasses) n.glasses.setAttribute('display', back ? 'none' : 'inline');
+          if (n.hairFront) n.hairFront.setAttribute('display', back ? 'none' : 'inline');
+          if (n.eye && n.eye.L) n.eye.L.g.setAttribute('display', prof ? 'none' : 'inline');
+          if (n.brow && n.brow.L) n.brow.L.g.setAttribute('display', prof ? 'none' : 'inline');
+          if (n['leg-L-upper']) n['leg-L-upper'].setAttribute('display', prof ? 'none' : 'inline');
+          const vx = prof ? 0.58 : three ? 0.84 : back ? 0.82 : 1;
+          const prev = n.torso.getAttribute('transform') || '';
+          if (vx !== 1 && prev.indexOf('scale(') >= 0) n.torso.setAttribute('transform', prev.replace(/scale\(1 /, 'scale(' + vx.toFixed(3) + ' '));
+          if (three && n['face-features'] && !back) {
+            const cur = n['face-features'].getAttribute('transform') || '';
+            n['face-features'].setAttribute('transform', cur + ' translate(26 0)');
+          }
+          svg.setAttribute('data-view', view);
+        }
       };
       S.onApply(ch.apply, opts.order || 10);
       ch.apply(0);
