@@ -1,0 +1,32 @@
+# dependencies / build output
+node_modules/
+dist/
+build/
+out/
+# renders, previews, media outputs
+previews/
+renders/
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.webm
+*.m4a
+*.flac
+# large generated assets (baked textures can be regenerated: node tools/bake-textures.mjs)
+library/textures/baked/
+# caches / logs
+.cache/
+.hyperframes/
+*.log
+# secrets
+.env
+.env.*
+*.key
+*.pem
+secrets/
+credentials*
+*secret*
+# OS/editor
+.DS_Store
+Thumbs.db
