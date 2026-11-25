@@ -189,19 +189,27 @@
       }
       return tg;
     },
-    say(tl, ch, text, t, dur) {
-      const parts = String(text || '').split(/\s+/).filter(Boolean);
-      if (!parts.length || !S.LipSync) return;
+    say(tl, ch, text, t, dur, wordsIn) {
+      const raw = String(text || '');
+      const paper = !!(ch.cfg && ch.cfg.paper);
+      if (paper && /^\s*\[NARRATOR\]/i.test(raw)) {
+        ch.tracks.viseme.set(t, 'X');
+        ch.tracks.viseme.set(t + (dur || 0.6), 'X');
+        return;
+      }
+      const parts = raw.split(/\s+/).filter(Boolean);
+      if ((!parts.length && !wordsIn) || !S.LipSync) return;
       dur = dur || Math.max(0.6, parts.length * 0.28);
-      const slice = dur / parts.length;
-      const words = parts.map((word, i) => ({
+      const slice = parts.length ? dur / parts.length : dur;
+      const words = wordsIn || parts.map((word, i) => ({
         word: word,
         start: t + i * slice,
         end: t + (i + 1) * slice - Math.min(0.05, slice * 0.3),
         stress: i % 3 === 0 || i === parts.length - 1
       }));
-      S.LipSync.fromWords(words, 0).forEach((k) => ch.tracks.viseme.set(k.t, k.v));
-      ch.tracks.viseme.set(words[words.length - 1].end + 0.06, null);
+      const opt = paper ? {style: 'paper9', minHold: 3, fps: S.FPS || 30} : null;
+      S.LipSync.fromWords(words, 0, opt).forEach((k) => ch.tracks.viseme.set(k.t, k.v));
+      ch.tracks.viseme.set(words[words.length - 1].end + 0.06, paper ? 'X' : null);
       words.forEach((w, i) => {
         if (!w.stress) return;
         tl.to(ch.p, {head: 3.5 * (i % 2 ? -1 : 1), duration: 0.09, ease: 'power2.out'}, w.start - 0.03);
@@ -228,7 +236,9 @@
         }
         if (typeof k.turn === 'number') S.Act.look(tl, ch, k.turn, k.t + 0.06, 0.32);
         if (typeof k.head === 'number') tl.to(ch.p, {head: k.head, duration: 0.3, ease: 'power2.out'}, k.t + 0.04);
-        if (k.say && k.say.text) S.Direct.say(tl, ch, k.say.text, k.t, k.say.dur);
+        if (typeof k.scale === 'number') tl.set(ch.p, {scale: k.scale}, k.t);
+        if (k.say && k.say.text) S.Direct.say(tl, ch, k.say.text, k.t, k.say.dur, k.say.words);
+        if (k.mouth) ch.tracks.viseme.set(k.t, k.mouth);
         if (k.walk) S.Act.walkTo(tl, ch, k.walk.from != null ? k.walk.from : ch.p.x, k.walk.to, k.t, k.walk.dur || 1.5);
         if (k.blink) S.Act.blink(ch, k.t);
         if (!k.walk && next - k.t > 1.6) S.Act.idle(tl, ch, k.t + 0.45, next - 0.12, S.hash(ch.id + ':' + i), ch.desk ? 0.35 : 1);

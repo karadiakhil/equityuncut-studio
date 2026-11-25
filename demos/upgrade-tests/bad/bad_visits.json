@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "duration": 7,
+  "fps": 30,
+  "size": [
+    1920,
+    1080
+  ],
+  "seed": 1,
+  "shots": [
+    {
+      "t": 0,
+      "dur": 1,
+      "set": "office",
+      "lighting": "flat",
+      "camera": {
+        "x": 900,
+        "y": 640,
+        "zoom": 1
+      }
+    },
+    {
+      "t": 1,
+      "dur": 1,
+      "set": "dorm",
+      "lighting": "flat",
+      "camera": {
+        "x": 920,
+        "y": 640,
+        "zoom": 1
+      }
+    },
+    {
+      "t": 2,
+      "dur": 1,
+      "set": "office",
+      "lighting": "flat",
+      "camera": {
+        "x": 940,
+        "y": 640,
+        "zoom": 1
+      }
+    },
+    {
+      "t": 3,
+      "dur": 1,
+      "set": "dorm",
+      "lighting": "flat",
+      "camera": {
+        "x": 960,
+        "y": 640,
+        "zoom": 1
+      }
+    },
+    {
+      "t": 4,
+      "dur": 1,
+      "set": "office",
+      "lighting": "flat",
+      "camera": {
+        "x": 980,
+        "y": 640,
+        "zoom": 1
+      }
+    },
+    {
+      "t": 5,
+      "dur": 1,
+      "set": "dorm",
+      "lighting": "flat",
+      "camera": {
+        "x": 1000,
+        "y": 640,
+        "zoom": 1
+      }
+    },
+    {
+      "t": 6,
+      "dur": 1,
+      "set": "office",
+      "lighting": "flat",
+      "camera": {
+        "x": 1020,
+        "y": 640,
+        "zoom": 1
+      }
+    }
+  ],
+  "characters": [
+    {
+      "id": "milo",
+      "cast": "Milo",
+      "set": "office",
+      "x": 960,
+      "scale": 0.84
+    }
+  ]
+}

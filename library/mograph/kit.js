@@ -19,7 +19,7 @@
   }
 
   const Kit = S.Kit = {
-    types: ['caption', 'kinetic', 'money', 'map', 'evidence', 'phone', 'laptop'],
+    types: ['caption', 'kinetic', 'money', 'map', 'evidence', 'phone', 'laptop', 'stamp', 'card', 'newspaper', 'doc', 'folder'],
     mount(tl, parent, item, brands) {
       const t = item.t || 0;
       const out = item.out;
@@ -30,6 +30,11 @@
       if (item.type === 'evidence') return evidence(tl, parent, item, t, out);
       if (item.type === 'phone') return phone(tl, parent, item, brands, t, out);
       if (item.type === 'laptop') return laptop(tl, parent, item, brands, t, out);
+      if (item.type === 'stamp') return stamp(tl, parent, item, t, out);
+      if (item.type === 'card') return card(tl, parent, item, t, out);
+      if (item.type === 'newspaper') return newspaper(tl, parent, item, t, out);
+      if (item.type === 'doc') return doc(tl, parent, item, t, out);
+      if (item.type === 'folder') return folder(tl, parent, item, t, out);
       throw new Error('unknown mograph ' + item.type);
     }
   };
@@ -169,6 +174,58 @@
     S.div({style: {position: 'absolute', left: '40px', right: '40px', bottom: '28px', height: '28px', background: '#9CA3AF', borderRadius: '0 0 10px 10px', border: '2px solid #18181B'}}, wrap);
     hide(tl, wrap, t, out);
     return wrap;
+  }
+
+  const PAPER = '#E3E1D5', INK = '#141114', DEEP = '#28363F', RED = '#D94A3A', NIGHT = '#0B0B0C';
+  function stamp(tl, parent, item, t, out) {
+    const fps = S.FPS || 30;
+    const slam = 3 / fps;
+    const el = S.div({class: 'ss-stamp', 'data-collide': 'headline', style: {position: 'absolute', left: (item.x || 960) + 'px', top: (item.y || 420) + 'px', transform: 'translate(-50%, -50%) rotate(' + (item.rot || -8) + 'deg)', opacity: 0, color: item.color || RED, border: '6px solid ' + (item.color || RED), padding: '8px 18px', font: "400 54px 'Archivo Black', sans-serif", letterSpacing: '0.08em', textShadow: '0 0 0 ' + INK}}, parent);
+    el.textContent = item.text || 'FILED';
+    const bleed = S.div({style: {position: 'absolute', inset: '-8px', border: '2px solid ' + (item.color || RED), opacity: 0.35, pointerEvents: 'none'}}, el);
+    tl.fromTo(el, {scale: 1.6, opacity: 0}, {scale: 1, opacity: 1, duration: slam, ease: 'power4.in', immediateRender: false}, t);
+    tl.fromTo(el, {x: 3}, {x: 0, duration: slam, ease: 'power2.out', immediateRender: false}, t + slam);
+    hide(tl, el, t, out);
+    return el;
+  }
+  function card(tl, parent, item, t, out) {
+    const el = S.div({class: 'ss-card', 'data-collide': 'headline', style: {position: 'absolute', left: (item.x || 360) + 'px', top: (item.y || 280) + 'px', width: '1200px', minHeight: '280px', background: NIGHT, color: PAPER, padding: '36px 48px', opacity: 0, font: "700 64px Kalam, 'Comic Sans MS', cursive", lineHeight: 1.25}}, parent);
+    const text = S.div({text: item.text || '', style: {clipPath: 'inset(0 100% 0 0)'}}, el);
+    const dur = Math.max(0.2, (out || t + 1.8) - t);
+    tl.fromTo(text, {clipPath: 'inset(0 100% 0 0)'}, {clipPath: 'inset(0 0% 0 0)', duration: Math.min(1.4, dur * 0.75), ease: 'none', immediateRender: false}, t + 0.08);
+    hide(tl, el, t, out);
+    return el;
+  }
+  function newspaper(tl, parent, item, t, out) {
+    const from = item.from === 'right' ? 1 : -1;
+    const rot = from * 6;
+    const el = S.div({class: 'ss-news', 'data-collide': 'headline', style: {position: 'absolute', left: '460px', top: '220px', width: '1000px', background: PAPER, color: INK, border: '4px solid ' + DEEP, padding: '28px 36px', opacity: 0, transform: 'rotate(' + rot + 'deg)'}}, parent);
+    S.div({text: item.headline || item.text || 'THE LEDGER', style: {font: "400 48px 'Archivo Black', sans-serif"}}, el);
+    tl.fromTo(el, {x: from * -240, rotation: rot, opacity: 0}, {x: 0, rotation: rot * 0.15, opacity: 1, duration: 0.4, ease: 'power3.out', immediateRender: false}, t);
+    hide(tl, el, t, out);
+    return el;
+  }
+  function doc(tl, parent, item, t, out) {
+    const el = S.div({class: 'ss-doc', 'data-collide': 'headline', style: {position: 'absolute', left: (item.x || 560) + 'px', top: (item.y || 180) + 'px', width: '760px', background: PAPER, color: INK, border: '3px solid ' + DEEP, padding: '28px 32px', opacity: 0}}, parent);
+    S.div({text: (item.kind || 'invoice').toUpperCase(), style: {font: "400 28px 'Archivo Black', sans-serif", marginBottom: '12px'}}, el);
+    (item.lines || []).forEach((ln, i) => {
+      const row = S.div({style: {position: 'relative', margin: '10px 0', font: "600 22px 'Plus Jakarta Sans', sans-serif", lineHeight: 1.3}}, el);
+      S.div({text: ln.text || ln, 'data-collide': 'caption', style: {display: 'inline-block'}}, row);
+      if (ln.redact) {
+        const b = S.div({style: {position: 'absolute', left: '0', top: '2px', height: '1.05em', width: (ln.redact * 100) + '%', background: INK, transformOrigin: '0 50%'}}, row);
+        tl.fromTo(b, {scaleX: 0}, {scaleX: 1, duration: 0.2, ease: 'power3.out', immediateRender: false}, t + 0.3 + i * 0.1);
+      }
+    });
+    hide(tl, el, t, out);
+    return el;
+  }
+  function folder(tl, parent, item, t, out) {
+    const el = S.div({class: 'ss-folder', 'data-collide': 'headline', style: {position: 'absolute', left: (item.x || 620) + 'px', top: (item.y || 300) + 'px', width: '680px', height: '420px', background: '#C4B8A4', border: '4px solid ' + DEEP, opacity: 0}}, parent);
+    S.div({style: {position: 'absolute', left: '0', top: '-36px', width: '220px', height: '40px', background: '#C4B8A4', border: '4px solid ' + DEEP, borderBottom: 'none'}}, el);
+    S.div({text: item.label || 'FOLDER', style: {position: 'absolute', left: '48px', top: '40px', font: "400 36px 'Archivo Black', sans-serif", color: INK}}, el);
+    hide(tl, el, t, out);
+    tl.fromTo(el, {y: 40}, {y: 0, duration: 0.35, ease: 'power3.out', immediateRender: false}, t);
+    return el;
   }
 
   S.onApply((t) => { for (let i = 0; i < readers.length; i++) readers[i].at(t); }, 22);

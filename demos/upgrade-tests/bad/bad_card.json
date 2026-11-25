@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "duration": 8,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 1,
+  "shots": [
+    {"t": 0, "dur": 2, "set": "office", "lighting": "flat", "camera": {"x": 900, "y": 640, "zoom": 1}},
+    {"t": 2, "dur": 2, "set": "office", "lighting": "flat", "camera": {"x": 980, "y": 620, "zoom": 1}},
+    {"t": 4, "dur": 2, "set": "office", "lighting": "flat", "camera": {"x": 1040, "y": 660, "zoom": 1}},
+    {"t": 6, "dur": 2, "set": "office", "lighting": "flat", "camera": {"x": 1100, "y": 600, "zoom": 1}}
+  ],
+  "characters": [{"id": "milo", "cast": "Milo", "set": "office", "x": 960, "scale": 0.84}],
+  "mograph": [
+    {"type": "card", "t": 0.2, "out": 1.9, "text": "one"},
+    {"type": "card", "t": 4.0, "out": 5.7, "text": "two"}
+  ]
+}

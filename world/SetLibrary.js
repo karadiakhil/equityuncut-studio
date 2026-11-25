@@ -7,13 +7,13 @@
 (function (S) {
   'use strict';
   const INK = S.INK;
-  const NAMES = ['office', 'trading-floor', 'server-room', 'apartment', 'courtroom', 'dorm', 'factory', 'city-night', 'newsroom'];
+  const NAMES = ['office', 'trading-floor', 'server-room', 'apartment', 'courtroom', 'dorm', 'factory', 'city-night', 'newsroom', 'paper', 'evidence-table', 'video-call-grid', 'debate-split'];
 
   function open(stage, name) {
     const L = [];
     for (let i = 0; i < 5; i++) L.push(S.g(stage.layers[i].svg, {'data-set': name}));
     const fx = S.g(stage.layers[3].fx, {'data-set': name});
-    return {L: L, fx: fx, nodes: L.concat([fx]), name: name, floorY: 1000, slots: {}};
+    return {L: L, fx: fx, nodes: L.concat([fx]), name: name, floorY: 1000, slots: {}, bounds: {x0: -200, x1: 2400, y0: 0, y1: 1200}};
   }
   function rngOf(name, seed) { return S.rng(S.hash(name + ':' + (seed || 1))); }
 
@@ -491,6 +491,72 @@
       S.svg('circle', {cx: 310, cy: 800, r: 16, fill: '#0B0B0C', stroke: '#94A3B8', 'stroke-width': 3}, rec.L[4]);
       S.svg('rect', {x: 180, y: 860, width: 16, height: 180, fill: '#1F2937'}, rec.L[4]);
       rec.slots['desk-main'] = {layer: 2, x: 900, y: 804};
+    },
+    paper(rec, o) {
+      const ink = o.lineColor || '#28363F', sw = o.lineWidth || 3.5;
+      S.svg('rect', {x: -600, y: -120, width: 4000, height: 1400, fill: '#E3E1D5'}, rec.L[0]);
+      S.svg('rect', {x: -400, y: 0, width: 3200, height: 748, fill: '#D5D1C4'}, rec.L[1]);
+      S.svg('rect', {x: -400, y: 748, width: 3200, height: 14, fill: ink}, rec.L[2]);
+      S.svg('rect', {x: -400, y: 762, width: 3200, height: 360, fill: '#C8C2B2'}, rec.L[2]);
+      S.svg('rect', {x: -40, y: 900, width: 70, height: 240, rx: 4, fill: '#B7B1A2', stroke: ink, 'stroke-width': sw}, rec.L[4]);
+      rec.slots['desk-main'] = {layer: 2, x: 960, y: 860};
+      rec.slots['foreground'] = {layer: 4, x: 200, y: 1040};
+    },
+    'evidence-table'(rec, o) {
+      const ink = o.lineColor || '#28363F', sw = o.lineWidth || 3.5;
+      S.svg('rect', {x: -400, y: -40, width: 3600, height: 900, fill: '#C4B8A4'}, rec.L[0]);
+      for (let x = -160; x < 2300; x += 88) S.svg('rect', {x: x, y: 40, width: 84, height: 700, fill: (x / 88) % 2 ? '#7A4E2E' : '#5C3A22', stroke: ink, 'stroke-width': 1.4}, rec.L[1]);
+      S.svg('ellipse', {cx: 960, cy: 640, rx: 540, ry: 190, fill: '#E2B657', opacity: 0.3}, rec.L[1]);
+      S.svg('rect', {x: 900, y: 70, width: 120, height: 18, fill: '#3A2A1C', stroke: ink, 'stroke-width': sw}, rec.L[1]);
+      S.svg('ellipse', {cx: 960, cy: 150, rx: 78, ry: 24, fill: '#E2B657', stroke: ink, 'stroke-width': sw}, rec.L[1]);
+      S.svg('path', {d: 'M160,690 L1760,690 L1880,900 L40,900 Z', fill: '#A87145', stroke: ink, 'stroke-width': sw, 'stroke-linejoin': 'round'}, rec.L[2]);
+      for (let i = 0; i < 9; i++) S.svg('path', {d: 'M' + (200 + i * 180) + ',700 L' + (90 + i * 200) + ',890', fill: 'none', stroke: '#6B4226', 'stroke-width': 2, opacity: 0.75}, rec.L[2]);
+      S.svg('path', {d: 'M-200,760 L2400,760', fill: 'none', stroke: ink, 'stroke-width': sw}, rec.L[2]);
+      S.svg('path', {d: 'M20,900 L1900,900 L1960,1140 L-40,1140 Z', fill: '#6B4226', stroke: ink, 'stroke-width': sw}, rec.L[4]);
+      rec.slots['beat-a'] = {layer: 2, x: 520, y: 800};
+      rec.slots['beat-b'] = {layer: 2, x: 980, y: 770};
+      rec.slots['beat-c'] = {layer: 2, x: 1420, y: 800};
+      rec.slots['desk-main'] = rec.slots['beat-b'];
+      rec.slots['foreground'] = {layer: 4, x: 360, y: 1040};
+    },
+    'video-call-grid'(rec, o) {
+      const ink = o.lineColor || '#28363F', sw = o.lineWidth || 3.5;
+      S.svg('rect', {x: -400, y: -40, width: 3600, height: 1300, fill: '#E3E1D5'}, rec.L[0]);
+      S.svg('rect', {x: 140, y: 70, width: 1640, height: 840, rx: 16, fill: '#1C2430', stroke: ink, 'stroke-width': sw}, rec.L[1]);
+      S.svg('ellipse', {cx: 960, cy: 480, rx: 680, ry: 260, fill: '#E2B657', opacity: 0.16}, rec.L[1]);
+      [[180, 110], [980, 110], [180, 500], [980, 500]].forEach((t, i) => {
+        const skin = ['#EAC2A0', '#E2BB98', '#D9AC88', '#C99474'][i];
+        S.svg('rect', {x: t[0], y: t[1], width: 700, height: 340, fill: '#0B0B0C', stroke: ink, 'stroke-width': sw}, rec.L[2]);
+        S.svg('circle', {cx: t[0] + 350, cy: t[1] + 140, r: 64, fill: skin, stroke: ink, 'stroke-width': 3}, rec.L[2]);
+        S.svg('rect', {x: t[0] + 250, y: t[1] + 220, width: 200, height: 78, rx: 36, fill: skin, stroke: ink, 'stroke-width': 3}, rec.L[2]);
+      });
+      const peel = S.svg('rect', {x: 140, y: 70, width: 1640, height: 840, fill: '#E3E1D5', stroke: ink, 'stroke-width': sw}, rec.L[2]);
+      const peelAt = o.peelAt || 0;
+      S.onApply((t) => {
+        const u = Math.max(0, Math.min(1, (t - peelAt) / 0.8));
+        peel.setAttribute('transform', 'translate(' + (u * 1760).toFixed(1) + ' ' + (u * -30).toFixed(1) + ') rotate(' + (u * -7).toFixed(2) + ' 140 70)');
+      }, 4);
+      S.svg('rect', {x: -200, y: 930, width: 2400, height: 8, fill: ink}, rec.L[2]);
+      S.svg('rect', {x: 60, y: 920, width: 1800, height: 200, fill: '#6B4226', stroke: ink, 'stroke-width': sw}, rec.L[4]);
+      rec.slots['desk-main'] = {layer: 2, x: 960, y: 880};
+      rec.slots['foreground'] = {layer: 4, x: 240, y: 1040};
+    },
+    'debate-split'(rec, o) {
+      const ink = o.lineColor || '#28363F', sw = o.lineWidth || 3.5;
+      S.svg('rect', {x: -400, y: -40, width: 1500, height: 900, fill: '#E7D7B8'}, rec.L[0]);
+      S.svg('rect', {x: 960, y: -40, width: 1800, height: 900, fill: '#C9D0D6'}, rec.L[0]);
+      S.svg('rect', {x: 80, y: 50, width: 800, height: 660, fill: '#F3E6CC', stroke: ink, 'stroke-width': sw}, rec.L[1]);
+      S.svg('rect', {x: 1060, y: 50, width: 800, height: 660, fill: '#D5DDE3', stroke: ink, 'stroke-width': sw}, rec.L[1]);
+      S.svg('ellipse', {cx: 420, cy: 260, rx: 240, ry: 110, fill: '#E2B657', opacity: 0.42}, rec.L[1]);
+      S.svg('rect', {x: 948, y: 0, width: 28, height: 1120, fill: ink}, rec.L[2]);
+      S.svg('rect', {x: -200, y: 748, width: 2600, height: 12, fill: ink}, rec.L[2]);
+      S.svg('rect', {x: -200, y: 760, width: 1148, height: 360, fill: '#A87145'}, rec.L[2]);
+      S.svg('rect', {x: 976, y: 760, width: 1500, height: 360, fill: '#8E97A0'}, rec.L[2]);
+      S.svg('rect', {x: 900, y: 680, width: 120, height: 440, fill: '#1C2430', stroke: ink, 'stroke-width': sw}, rec.L[4]);
+      rec.slots['left'] = {layer: 2, x: 420, y: 920};
+      rec.slots['right'] = {layer: 2, x: 1500, y: 920};
+      rec.slots['desk-main'] = rec.slots['left'];
+      rec.slots['foreground'] = {layer: 4, x: 960, y: 1040};
     }
   };
 

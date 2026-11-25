@@ -37,6 +37,25 @@
   }
   S.crescent = crescent;
 
+  // Scale ink strokes so a paper outline is inkPx screen pixels at the character's scale, before camera zoom.
+  // Bases are stored once; later calls (scale tweens, stature) recompute from those bases.
+  S.retuneInk = function (svg, factor, screenScale) {
+    const inks = {'#141114': 1, '#18181b': 1};
+    svg.querySelectorAll('[stroke]').forEach((e) => {
+      const s = (e.getAttribute('stroke') || '').toLowerCase();
+      if (e.hasAttribute('data-screen-px')) {
+        const px = parseFloat(e.getAttribute('data-screen-px'));
+        const sc = screenScale || 1;
+        e.setAttribute('stroke-width', (px / sc).toFixed(3));
+        return;
+      }
+      if (!inks[s]) return;
+      if (!e.hasAttribute('data-ink-base')) e.setAttribute('data-ink-base', e.getAttribute('stroke-width') || '1');
+      const base = parseFloat(e.getAttribute('data-ink-base'));
+      e.setAttribute('stroke-width', (base * factor).toFixed(3));
+    });
+  };
+
   S.Character = {
     create(cfg, opts) {
       opts = opts || {};
@@ -44,10 +63,10 @@
       const J = cfg.joints;
       const wrap = S.div({class: 'ss-char', 'data-layout-ignore': '', id: id + '-wrap', style: {position: 'absolute', left: '0px', top: '0px', width: '0px', height: '0px', transformOrigin: '0 0', zIndex: opts.z || 1}}, opts.parent);
       const V = cfg.view || [-220, -760, 440, 800];
-      const svg = S.svg('svg', {viewBox: V.join(' '), width: V[2], height: V[3], overflow: 'visible',
+      const svg = S.svg('svg', {viewBox: V.join(' '), width: V[2], height: V[3], overflow: 'visible', 'data-shading': cfg.shading || '', 'data-paper': cfg.paper ? '1' : '',
         style: `position:absolute;left:${V[0]}px;top:${V[1]}px;overflow:visible`}, wrap);
       const defs = S.svg('defs', null, svg);
-      const ctx = {cfg, defs, J, crescent: (p, d, b, s, dx, dy, t) => crescent(p, defs, d, b, s, dx == null ? 6 : dx, dy == null ? 3 : dy, t)};
+      const ctx = {cfg, defs, J, geom: cfg.geom || null, crescent: (p, d, b, s, dx, dy, t) => crescent(p, defs, d, b, s, dx == null ? 6 : dx, dy == null ? 3 : dy, t)};
       const n = {}; // named nodes
       const G = (parent, name, extra) => (n[name] = S.g(parent, Object.assign({id: `${id}-${name}`}, extra || {})));
 
@@ -105,8 +124,8 @@
       else ctx.crescent(base, cfg.head.d, cfg.skin, cfg.skinShade, cfg.head.shadeDX || 9, cfg.head.shadeDY || 5, false);
       const baseClip = S.g(base, {'clip-path': `url(#${headClip})`});
       if (cfg.head.extras) cfg.head.extras(baseClip, ctx);
-      // forehead cast shadow under the bangs
-      S.path(baseClip, cfg.hair.front, cfg.skinShade, null, {transform: 'translate(3 8)', opacity: paper ? 0.3 : 0.85});
+      // forehead cast shadow under the bangs. Hard paper shading uses one crescent instead of this wash.
+      if (!(paper && (cfg.shading || 'hard') === 'hard')) S.path(baseClip, cfg.hair.front, cfg.skinShade, null, {transform: 'translate(3 8)', opacity: paper ? 0.3 : 0.85});
       const fclip = G(head, 'face-clip-group', {'clip-path': `url(#${headClip})`});
       const feat = G(fclip, 'face-features');
       const F = cfg.face;
@@ -166,7 +185,7 @@
       // mouth
       n.mouth = S.g(feat, {id: `${id}-mouth-rig`});
       const mInner = S.g(n.mouth, {transform: `translate(0 ${F.mouthY}) scale(${F.mouthScale})`});
-      n.mouths = S.buildMouths(mInner, defs, cfg.skinShade);
+      n.mouths = (paper && S.buildPaperMouths) ? S.buildPaperMouths(mInner, defs, cfg) : S.buildMouths(mInner, defs, cfg.skinShade);
       if (F.extras) F.extras(feat, ctx);
       // sweat drop (panicked)
       n.sweat = S.g(feat, {display: 'none'});
@@ -232,12 +251,13 @@
       // in front of the whole figure (desk fronts that hide seated legs), character-local ground frame
       n.front = S.g(svg, {id: `${id}-front`});
       if (cfg.draw.overArm) cfg.draw.overArm(torso, ctx);
+      if (ctx.lightFlips) n.lightFlips = ctx.lightFlips;
 
       // ---- state ----
       const p = Object.assign({}, PARAMS, cfg.rest || {}, opts.frozen ? {breathe: 0} : {}, opts.p || {});
       const tracks = {viseme: new S.Track(null), mood: new S.Track('REST'), handL: new S.Track(cfg.restHand || 'relaxed'),
         handR: new S.Track(cfg.restHandR || cfg.restHand || 'relaxed'), dollar: new S.Track(false), sweat: new S.Track(false),
-        acc: new S.Track(cfg.restAcc || []), held: new S.Track(null)};
+        acc: new S.Track(cfg.restAcc || []), held: new S.Track(null), lightSide: new S.Track(cfg.lightSide == null ? -1 : cfg.lightSide)};
       if (cfg.restHandL) tracks.handL = new S.Track(cfg.restHandL);
       if (cfg.restMood) tracks.mood = new S.Track(cfg.restMood);
       const rnd = S.rng(S.hash(id + ':blink'));
@@ -277,9 +297,10 @@
       ch.apply = function (t) {
         const facing = p.facing, sq = p.squash;
         const sx = (1 + sq * 0.6), sy = (1 - sq);
+        const st = cfg.statureScale || 1;
         wrap.style.transform = `translate(${p.x.toFixed(2)}px, ${p.y.toFixed(2)}px) perspective(1200px) rotateX(${p.fold.toFixed(2)}deg) scale(${p.scale.toFixed(4)})`;
         wrap.style.opacity = p.alpha;
-        n['char-root'].setAttribute('transform', `rotate(${p.lean.toFixed(3)} 0 0) scale(${(facing * sx).toFixed(4)} ${sy.toFixed(4)})`);
+        n['char-root'].setAttribute('transform', `rotate(${p.lean.toFixed(3)} 0 0) scale(${(facing * sx * st).toFixed(4)} ${(sy * st).toFixed(4)})`);
         n.shadow.setAttribute('rx', (cfg.shadowRx || 74) * (1 - Math.min(0.4, Math.max(0, -p.pelvisY) / 200)));
         // auto-ground: lowest sole point touches y = 0
         let low = -1e9;
@@ -324,7 +345,17 @@
         n.neck.setAttribute('transform', rot(p.neck, J.neck));
         // viseme / mood mouth + jaw
         const vis = tracks.viseme.at(t); const mood = tracks.mood.at(t);
-        const mouth = (vis && vis !== 'REST') ? vis : (mood || 'REST');
+        let mouth = (vis && vis !== 'REST') ? vis : (mood || 'REST');
+        if (paper && mouth === 'REST') mouth = 'X';
+        if (n.lightFlips) {
+          const side = tracks.lightSide.at(t);
+          const tf = side > 0 ? 'scale(-1 1)' : '';
+          n.lightFlips.forEach((g) => g.setAttribute('transform', tf));
+        }
+        if (paper && cfg.inkPx) {
+          const factor = cfg.inkPx / ((cfg.ink || 4.2) * (p.scale || 1) * st);
+          S.retuneInk(svg, factor, (p.scale || 1) * st);
+        }
         for (const k2 in n.mouths) n.mouths[k2].setAttribute('display', k2 === mouth ? 'inline' : 'none');
         const open = (S.VISEME_OPEN[mouth] || 0) * 0.7 + p.jaw;
         const crown = cfg.head.crown;

@@ -4,7 +4,9 @@ dist/
 build/
 out/
 # renders, previews, media outputs
-previews/
+previews/*
+!previews/engine-upgrade-p0/
+!previews/engine-upgrade-p0/**
 renders/
 *.mp4
 *.mov

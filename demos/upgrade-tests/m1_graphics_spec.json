@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "m1-graphics",
+  "duration": 11.4,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 4,
+  "stills": [0.28, 2.6, 3.7, 5.2, 7.6, 10.0],
+  "shots": [
+    {"t": 0, "dur": 2.4, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 900, "y": 640, "zoom": 1, "preset": "static"}},
+    {"t": 2.4, "dur": 1.8, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 980, "y": 620, "zoom": 1, "preset": "static"}},
+    {"t": 4.2, "dur": 2.4, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 1040, "y": 660, "zoom": 1, "preset": "static"}},
+    {"t": 6.6, "dur": 2.4, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 920, "y": 600, "zoom": 1, "preset": "static"}},
+    {"t": 9.0, "dur": 2.4, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 1000, "y": 680, "zoom": 1, "preset": "static"}}
+  ],
+  "mograph": [
+    {"type": "stamp", "t": 0.15, "out": 2.2, "text": "PAID", "color": "#D94A3A", "rot": -8},
+    {"type": "card", "t": 2.5, "out": 4.1, "text": "they never left the dorm"},
+    {"type": "newspaper", "t": 4.4, "out": 6.4, "headline": "INVOICE CLEARS", "from": "left"},
+    {"type": "doc", "t": 6.8, "out": 8.8, "kind": "invoice", "lines": [{"text": "TO  QUANTA COMPUTER"}, {"text": "SUM  $122,000", "redact": 0.4}, {"text": "DUE  FRIDAY"}]},
+    {"type": "folder", "t": 9.2, "out": 11.2, "label": "CASE 12"}
+  ]
+}

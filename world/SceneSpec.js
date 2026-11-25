@@ -9,6 +9,29 @@
 
   function err(list) { if (list.length) throw new Error('scene_spec: ' + list.join('; ')); }
 
+  function fillPreset(shot) {
+    const cam = shot.camera || (shot.camera = {});
+    const preset = cam.preset;
+    if (!preset) return;
+    if (preset === 'static') return;
+    if (preset === 'push') {
+      const z = cam.zoom == null ? 1 : cam.zoom;
+      if (cam.to == null) cam.to = {};
+      if (cam.to.zoom == null) cam.to.zoom = +(z * 1.045).toFixed(4);
+    }
+    if (preset === 'drift') {
+      if (cam.x == null) cam.x = 960;
+      if (cam.to == null) cam.to = {};
+      if (cam.to.x == null) cam.to.x = cam.x + 48;
+    }
+    if (preset === 'crash-zoom') {
+      if (cam.zoom == null) cam.zoom = 1.04;
+      if (cam.to == null) cam.to = {};
+      if (cam.to.zoom == null) cam.to.zoom = Math.max(1.7, (cam.zoom || 1) * 1.5);
+      cam._crash = true;
+    }
+  }
+
   S.Scene = {
     validate(spec) {
       const e = [];
@@ -48,7 +71,10 @@
     render(host, spec) {
       err(S.Scene.validate(spec));
       if (!window.gsap) throw new Error('gsap is required');
+      const fps = spec.fps || 30;
+      S.FPS = fps;
       const shots = spec.shots.slice().sort((a, b) => a.t - b.t);
+      shots.forEach(fillPreset);
       host.style.position = 'relative';
       host.style.width = '1920px';
       host.style.height = '1080px';
@@ -83,12 +109,35 @@
         const toSrc = camIn.to || {};
         const to = {x: toSrc.x == null ? from.x : toSrc.x, y: toSrc.y == null ? from.y : toSrc.y, zoom: toSrc.zoom == null ? from.zoom : toSrc.zoom};
         cam.beat(shot.t, shot.set);
-        tl.fromTo(cam.p, {x: from.x, y: from.y, zoom: from.zoom}, Object.assign({duration: Math.max(0.05, shot.dur - 0.03), ease: camIn.ease || 'sine.inOut', immediateRender: i === 0}, to), shot.t);
+        const moveDur = camIn._crash ? Math.min(Math.max(0.05, shot.dur - 0.03), 6 / fps) : Math.max(0.05, shot.dur - 0.03);
+        tl.fromTo(cam.p, {x: from.x, y: from.y, zoom: from.zoom}, Object.assign({duration: moveDur, ease: camIn.ease || 'sine.inOut', immediateRender: i === 0}, to), shot.t);
         if (camIn.focus) cam.rackFocus(tl, camIn.focus, shot.t, 0.35);
         const prev = i ? shots[i - 1] : null;
         const soft = prev && prev.set === shot.set && prev.lighting === shot.lighting;
         light.cut(tl, shot.lighting || 'flat', shot.time || 'day', shot.weather || 'clear', shot.t, i === 0 ? 0.01 : (soft ? 0.4 : 0.08));
-        if (shot.transition === 'whip') S.MG.whipPan(tl, screen, {start: shot.t, dur: 0.34, dir: i % 2 ? -1 : 1, seed: 11 + i});
+        if (shot.transition === 'whip') S.MG.whipPan(tl, screen, {start: shot.t, dur: 6 / fps, dir: i % 2 ? -1 : 1, seed: 11 + i});
+        if (shot.transition === 'crash') {
+          const flash = S.div({class: 'ss-crash', style: {position: 'absolute', inset: '0', background: '#FFFFFF', opacity: 0, pointerEvents: 'none'}}, screen);
+          tl.fromTo(flash, {opacity: 0}, {opacity: 1, duration: 1 / fps, ease: 'none', immediateRender: false}, shot.t);
+          tl.to(flash, {opacity: 0, duration: 1 / fps, ease: 'none'}, shot.t + 1 / fps);
+        }
+        if (camIn.shake) {
+          const sh = camIn.shake;
+          const amp = Math.max(2, Math.min(4, sh.amp == null ? 3 : sh.amp));
+          const dur = Math.min(sh.dur == null ? 8 / fps : sh.dur, 8 / fps);
+          cam.impactShake(tl, sh.at == null ? shot.t : sh.at, amp, dur);
+        }
+        if (camIn.preset === 'ots' && shot.foreground && S.Cast[shot.foreground.cast]) {
+          const side = shot.foreground.side === 'right' ? 1 : -1;
+          const fg = S.Character.create(S.Cast[shot.foreground.cast], {
+            id: 'ots-' + i, parent: stage.layers[4].html,
+            p: {x: side < 0 ? 260 : 1660, y: 1240, scale: 2.15, facing: side < 0 ? 1 : -1}
+          });
+          fg.wrap.style.filter = 'blur(12px)';
+          fg.wrap.style.opacity = '0.92';
+          const t0 = shot.t, t1 = shot.t + shot.dur;
+          S.onApply((time) => { fg.wrap.style.display = (time >= t0 && time < t1 - 0.001) ? '' : 'none'; }, 7);
+        }
       });
       const active = new S.Track(shots[0].set);
       shots.forEach((s) => active.set(s.t, s.set));
@@ -113,7 +162,7 @@
         if (!rec) throw new Error('prop set ' + p.set);
         const slot = rec.slots[p.slot];
         if (!slot) throw new Error('set ' + p.set + ' has no slot ' + p.slot);
-        const made = S.Props[p.kind](rec.L[slot.layer], {x: slot.x, y: slot.y, scale: p.scale || 0.65, paper: p.paper === true, word: p.word, id: p.id || null});
+        const made = S.Props[p.kind](rec.L[slot.layer], Object.assign({}, p, {x: slot.x, y: slot.y, scale: p.scale || 0.65, paper: p.paper === true, id: p.id || null}));
         if (made.animate) made.animate(tl, p.t || 0, p.tEnd || spec.duration, p.anim || {});
       });
       (spec.vehicles || []).forEach((v) => {
@@ -130,11 +179,20 @@
       (spec.characters || []).forEach((c) => {
         const rec = sets[c.set];
         if (!rec) throw new Error('character set ' + c.set);
-        const ch = S.Character.create(S.Cast[c.cast], {
+        let cfg = S.Cast[c.cast];
+        if (c.rig && cfg && cfg.paper && cfg.meta && S.paper8) {
+          cfg = S.paper8(Object.assign({}, cfg.meta, c.rig, {name: cfg.name}));
+          if (c.cast === 'TheClipboard') {
+            cfg = Object.freeze(Object.assign({}, cfg, {restHandR: 'grip-prop',
+              draw: Object.assign({}, cfg.draw, {mountR: function (g) { if (S.Props.clipboard) S.Props.clipboard(g, {x: 0, y: 26, scale: 0.42, rot: 180}); }})}));
+          }
+        }
+        const ch = S.Character.create(cfg, {
           id: c.id || c.cast.toLowerCase(),
           parent: stage.layers[3].html,
           p: {x: c.x || 960, y: c.y != null ? c.y : rec.floorY, scale: c.scale || 0.82, facing: c.facing || 1}
         });
+        if (c.lightSide != null && ch.tracks.lightSide) ch.tracks.lightSide.set(0, c.lightSide);
         rec.chars.push(ch);
         cast.push(ch);
         if (c.brand) S.Brand.pin(ch, S.Brand.get(brands, c.brand));
@@ -147,13 +205,18 @@
         }
         S.Direct.keys(tl, ch, c.keys || [], spec.duration);
       });
+      shots.forEach((s) => {
+        if (s.lightSide == null) return;
+        cast.forEach((ch) => { if (ch.cfg.paper && ch.tracks.lightSide) ch.tracks.lightSide.set(s.t, s.lightSide); });
+      });
       (spec.mograph || []).forEach((m) => {
         S.Kit.mount(tl, screen, m, brands);
         cam.beat(m.t || 0, 'mg-' + m.type);
+        if (m.type === 'stamp') cam.impactShake(tl, (m.t || 0) + 3 / fps, 3, 3 / fps);
       });
       names.forEach((name) => {
         if (!S.Textures || !S.Textures.dust) return;
-        if (name === 'city-night' || (spec.setParams && spec.setParams[name] && spec.setParams[name].density === 'bare')) return;
+        if (name === 'city-night' || name === 'paper' || name === 'evidence-table' || name === 'video-call-grid' || name === 'debate-split' || (spec.setParams && spec.setParams[name] && spec.setParams[name].density === 'bare')) return;
         S.Textures.dust(tl, sets[name].L[1], {count: 14, x: 180, y: 80, w: 1600, h: 520, seed: S.hash(name + ':dust'), start: 0, end: spec.duration, opacity: 0.28, color: '#FFF6E0'});
       });
       tl.set({}, {}, spec.duration);

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "id": "c3-proportions",
+  "duration": 1,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 1,
+  "stills": [0.5],
+  "shots": [
+    {"t": 0, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 960, "y": 640, "zoom": 1, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "default", "cast": "Milo", "set": "paper", "x": 260, "scale": 0.72, "workstation": false},
+    {"id": "paper40", "cast": "Milo", "set": "paper", "x": 700, "scale": 0.72, "workstation": false, "rig": {"proportions": "paper40"}},
+    {"id": "wide", "cast": "Milo", "set": "paper", "x": 1180, "scale": 0.72, "workstation": false, "rig": {"bodyW": 1.2}},
+    {"id": "short", "cast": "Milo", "set": "paper", "x": 1640, "scale": 0.72, "workstation": false, "rig": {"stature": 0.9}}
+  ]
+}
