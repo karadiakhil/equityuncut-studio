@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "id": "faces-ratio",
+  "duration": 1,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 1,
+  "stills": [0.5],
+  "shots": [
+    {"t": 0, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear",
+      "camera": {"x": 960, "y": 700, "zoom": 1, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "legacy", "cast": "Milo", "set": "paper", "x": 360, "scale": 0.72, "workstation": false, "rig": {"proportions": "legacy"}},
+    {"id": "paper37", "cast": "Milo", "set": "paper", "x": 960, "scale": 0.72, "workstation": false, "rig": {"proportions": "paper37"}},
+    {"id": "paper40", "cast": "Milo", "set": "paper", "x": 1560, "scale": 0.72, "workstation": false, "rig": {"proportions": "paper40"}}
+  ]
+}

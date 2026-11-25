@@ -47,8 +47,9 @@
   };
   const BEAN0 = 'M-56,-394 C-80,-390 -90,-332 -91,-252 C-92,-170 -72,-100 0,-100 C72,-100 92,-170 91,-252 C90,-332 80,-390 56,-394 Z';
   const CHIN_Y = -382, SOLE_Y = 10;
-  // head diameter / (392 + diameter) = 0.42 → diameter = 0.42*392/0.58
+  // head diameter / (392 + diameter) = target. Measured screen ratio runs a little high because the outline is included.
   const PAPER40_HEAD = (0.42 * (SOLE_Y - CHIN_Y)) / (1 - 0.42) / 200;
+  const PAPER37_HEAD = (0.36 * (SOLE_Y - CHIN_Y)) / (1 - 0.36) / 200;
   function scalePathX(d, k) {
     if (k === 1) return d;
     const out = [];
@@ -69,7 +70,10 @@
   }
   function geom(o) {
     o = o || {};
-    const headScale = o.proportions === 'paper40' ? PAPER40_HEAD : (o.headScale == null ? 1 : o.headScale);
+    let headScale = o.headScale == null ? 1 : o.headScale;
+    if (o.proportions === 'paper40') headScale = PAPER40_HEAD;
+    else if (o.proportions === 'paper37') headScale = PAPER37_HEAD;
+    else if (o.proportions === 'legacy') headScale = 1;
     const bodyW = o.bodyW == null ? 1 : o.bodyW;
     const legLen = o.legLen == null ? 1 : o.legLen;
     const r = 100 * headScale;
@@ -92,7 +96,7 @@
   const HEAD = G0.HEAD;
   const hp = G0.hp;
   S.paperGeom = geom;
-  S.PAPER8 = {J: G0.J, HEAD: G0.HEAD, BEAN: G0.BEAN, INK: INK, PAPER40_HEAD: PAPER40_HEAD};
+  S.PAPER8 = {J: G0.J, HEAD: G0.HEAD, BEAN: G0.BEAN, INK: INK, PAPER40_HEAD: PAPER40_HEAD, PAPER37_HEAD: PAPER37_HEAD};
 
   // ---- mitten hands (wrist at 0,0, fingers toward +y, thumb toward -x; right hand) ---------------------------------
   const MITT = {
@@ -132,7 +136,7 @@
       const inner = S.g(eg, {'clip-path': `url(#${cid})`});
       const iris = S.g(inner);
       S.svg('ellipse', {cx, cy, rx, ry, fill: F.eyeColor || '#19161B'}, iris);
-      S.svg('ellipse', {cx: cx - rx * 0.3, cy: cy - ry * 0.4, rx: rx * 0.32, ry: ry * 0.27, fill: '#FFFFFF', opacity: 0.95}, iris);
+      if (!F.matte) S.svg('ellipse', {cx: cx - rx * 0.3, cy: cy - ry * 0.4, rx: rx * 0.32, ry: ry * 0.27, fill: '#FFFFFF', opacity: 0.95, 'data-gloss': '1'}, iris);
       const dollar = S.svg('text', {x: cx, y: cy + ry * 0.7, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': ry * 2.2, fill: S.PALETTE.emeraldDeep, display: 'none'}, inner);
       dollar.textContent = '$';
       const top = cy - ry - 6;
@@ -303,8 +307,10 @@
       outfit: o.outfit, top: o.top, top2: o.top2, bottom: o.bottom, shirt: o.shirt, tie: o.tie, accent: o.accent,
       shoe: o.shoe, eyeColor: o.eyeColor, browColor: o.browColor, stature: o.stature,
       shading: o.shading, lightSide: o.lightSide, headScale: o.headScale, bodyW: o.bodyW, legLen: o.legLen,
-      proportions: o.proportions, inkPx: o.inkPx
+      proportions: o.proportions, inkPx: o.inkPx, face: o.face || null
     };
+    const faceOpt = o.face || {};
+    const browW = faceOpt.browW == null ? 3.8 : faceOpt.browW;
     const cfg = {
       name: o.name, paper: true, ink: 4.2, inkPx: o.inkPx == null ? 6 : o.inkPx, armW: 8, noBlush: true,
       shading: o.shading || 'hard', lightSide: o.lightSide == null ? -1 : o.lightSide,
@@ -319,7 +325,8 @@
       badge: [30, -350],
       face: {
         eyeY: H.cy + 6 * hs, eyeDX: 31 * hs, eyeRX: 8.6 * hs, eyeRY: 11.8 * hs, irisR: 8 * hs, eyeColor: o.eyeColor,
-        browY: H.cy - 24 * hs, browDX: 15 * hs, browLen: 25 * hs, browW: 3.8 * hs, browArch: 3 * hs, browColor: o.browColor || INK,
+        browY: H.cy - 24 * hs, browDX: 15 * hs, browLen: 25 * hs, browW: browW * hs, browArch: (faceOpt.browArch == null ? 3 : faceOpt.browArch) * hs, browColor: faceOpt.browColor || o.browColor || INK,
+        matte: faceOpt.matte === true,
         mouthY: H.cy + 50 * hs, mouthScale: 1.5 * hs, cheekDX: 50 * hs, cheekY: H.cy + 30 * hs, templeX: H.r - 4 * hs, nose: null
       },
       draw: {
@@ -365,13 +372,17 @@
   // ---- the house cast, rebuilt on the paper grammar ------------------------------------------------------------------
   ['Milo', 'TheSuit', 'TheClipboard', 'TheSchemer'].forEach((k) => { if (Cast[k] && !Cast[k].paper) Cast[k + 'V1'] = Cast[k]; });
   Cast.Milo = S.paper8({name: 'Milo', skin: '#EAC2A0', hair: ['tousle', '#2A211D'], glasses: 'wire', crooked: 2,
-    outfit: 'hoodie', top: '#C8302C', top2: '#A3231F', bottom: '#2F3A55', shoe: '#F1EFE8'});
+    outfit: 'hoodie', top: '#C8302C', top2: '#A3231F', bottom: '#2F3A55', shoe: '#F1EFE8',
+    proportions: 'paper37', face: {matte: true, browW: 5.2}});
   Cast.TheSuit = S.paper8({name: 'TheSuit', skin: '#E2BB98', hair: ['swept', '#A4A9AF'],
-    outfit: 'suit', top: '#23283A', top2: '#151927', shirt: '#F4F1EA', tie: '#E8B43A', bottom: '#1C2030', shoe: '#141416', accent: '#F4EEDC'});
+    outfit: 'suit', top: '#23283A', top2: '#151927', shirt: '#F4F1EA', tie: '#E8B43A', bottom: '#1C2030', shoe: '#141416', accent: '#F4EEDC',
+    proportions: 'paper37', face: {matte: true, browW: 6.8}});
   Cast.TheClipboard = S.paper8({name: 'TheClipboard', skin: '#D9AC88', hair: ['parted', '#5A3A24'], glasses: 'rect',
-    outfit: 'shirt', top: '#A9C6E6', shirt: '#F4F7FB', tie: '#25344F', bottom: '#B59A6E', shoe: '#5A3A24', accent: '#2563EB'});
+    outfit: 'shirt', top: '#A9C6E6', shirt: '#F4F7FB', tie: '#25344F', bottom: '#B59A6E', shoe: '#5A3A24', accent: '#2563EB',
+    proportions: 'paper37', face: {matte: true, browW: 5.6}});
   Cast.TheSchemer = S.paper8({name: 'TheSchemer', skin: '#C99474', skinShade: '#A8775A', hair: ['slick', '#1C1A1E'], glasses: 'shades',
-    outfit: 'trench', top: '#B78A52', top2: '#94693A', shirt: '#26262B', bottom: '#26262B', shoe: '#2A1E16'});
+    outfit: 'trench', top: '#B78A52', top2: '#94693A', shirt: '#26262B', bottom: '#26262B', shoe: '#2A1E16',
+    proportions: 'paper37', face: {matte: true, browW: 7.4}});
   // TheClipboard keeps its clipboard in the right hand
   Cast.TheClipboard = Object.freeze(Object.assign({}, Cast.TheClipboard, {restHandR: 'grip-prop',
     draw: Object.assign({}, Cast.TheClipboard.draw, {mountR(g) { if (S.Props.clipboard) S.Props.clipboard(g, {x: 0, y: 26, scale: 0.42, rot: 180}); }})}));
