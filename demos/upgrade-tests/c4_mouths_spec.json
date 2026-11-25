@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "id": "c4-mouths",
+  "duration": 8,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 1,
+  "stills": [0.4, 3.0],
+  "shots": [
+    {"t": 0, "dur": 2, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 960, "y": 620, "zoom": 1.15, "preset": "static"}},
+    {"t": 2, "dur": 3, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 960, "y": 560, "zoom": 1.35, "preset": "static"}},
+    {"t": 5, "dur": 3, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 980, "y": 540, "zoom": 1.4, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "mA", "cast": "Milo", "set": "paper", "x": 180, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "A"}]},
+    {"id": "mB", "cast": "Milo", "set": "paper", "x": 380, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "B"}]},
+    {"id": "mC", "cast": "Milo", "set": "paper", "x": 580, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "C"}]},
+    {"id": "mD", "cast": "Milo", "set": "paper", "x": 780, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "D"}]},
+    {"id": "mE", "cast": "Milo", "set": "paper", "x": 980, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "E"}]},
+    {"id": "mF", "cast": "Milo", "set": "paper", "x": 1180, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "F"}]},
+    {"id": "mG", "cast": "Milo", "set": "paper", "x": 1380, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "G"}]},
+    {"id": "mH", "cast": "Milo", "set": "paper", "x": 1580, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "H"}]},
+    {"id": "mX", "cast": "Milo", "set": "paper", "x": 1780, "y": 620, "scale": 0.42, "workstation": false, "keys": [{"t": 0, "mouth": "X"}]},
+    {"id": "speaker", "cast": "Milo", "set": "paper", "x": 700, "y": 1040, "scale": 0.7, "workstation": false, "keys": [{"t": 2.05, "say": {"text": "He sent us an invoice. We paid it.", "dur": 5.6}}]},
+    {"id": "narrator", "cast": "TheSuit", "set": "paper", "x": 1300, "y": 1040, "scale": 0.7, "workstation": false, "keys": [{"t": 2.05, "say": {"text": "[NARRATOR] He sent us an invoice.", "dur": 5.6}}]}
+  ]
+}

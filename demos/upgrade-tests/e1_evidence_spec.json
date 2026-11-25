@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "id": "e1-evidence",
+  "duration": 3,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 3,
+  "stills": [0.2, 0.7, 1.5, 2.4],
+  "shots": [
+    {"t": 0, "dur": 3, "set": "evidence-table", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 960, "y": 700, "zoom": 1.05, "preset": "static"}}
+  ],
+  "props": [
+    {"set": "evidence-table", "slot": "beat-a", "kind": "invoice", "scale": 1.3, "anim": {"at": 0.3}},
+    {"set": "evidence-table", "slot": "beat-b", "kind": "stampLatvian", "scale": 1.4, "word": "RIGA", "anim": {"at": 1.1}},
+    {"set": "evidence-table", "slot": "beat-c", "kind": "courtFolder", "scale": 1.2, "label": "CASE 12", "anim": {"at": 1.9}}
+  ]
+}

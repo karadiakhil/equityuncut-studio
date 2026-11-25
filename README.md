@@ -55,14 +55,16 @@ Lettering never mirrors. `node tools/check_vehicles.mjs <spec>` measures facing 
 
 `Studio.Scene.render(host, spec)` builds a paused GSAP timeline. Scrubbing it is the render. There is no free-running clock. The demo page is `demos/nk-dorm-fbi/index.html`. `tools/render-spec.mjs` injects the JSON as `window.__SPEC_OVERRIDE`, so the file on disk is what gets drawn.
 
-Frame size is 1920×1080. Coordinates inside a set are plate-local: camera `x: 960` looks at the middle of a set. Shots cut by hiding every other set. Parallax is the existing five layers (backdrop, architecture, set, characters, foreground).
+Frame size is 1920×1080. EU specs use `"fps": 30` (the renderer default when `fps` is omitted). A spec that sets `"fps": 24` still renders at 24. `tools/render-spec.mjs` writes `render_report.json` with the resolved fps and `frames = round(duration * fps)`. Ink outlines are 6 px at camera zoom 1, before the camera scales the stage.
+
+Coordinates inside a set are plate-local: camera `x: 960` looks at the middle of a set. Shots cut by hiding every other set. Parallax is the existing five layers (backdrop, architecture, set, characters, foreground).
 
 ```json
 {
   "version": 1,
   "id": "cold-open",
   "duration": 5,
-  "fps": 24,
+  "fps": 30,
   "size": [1920, 1080],
   "seed": 1,
   "brands": [
@@ -102,8 +104,8 @@ Frame size is 1920×1080. Coordinates inside a set are plate-local: camera `x: 9
 | `lighting` | Grade preset |
 | `time` | `day`, `dusk`, or `night` |
 | `weather` | `clear`, `rain`, or `haze` |
-| `transition` | `cut` (default) or `whip` |
-| `camera` | `{x, y, zoom, to:{x,y,zoom}, ease, focus}` in plate space. `focus` is a rack, for example `{"b0": 5, "b4": 2}` |
+| `transition` | `cut` (default), `whip` (6 frames at the spec fps), or `crash` (2-frame white flash) |
+| `camera` | `{x, y, zoom, to:{x,y,zoom}, ease, focus, preset, shake}` in plate space. `preset` is `static`, `push` (about 4.5% when `to.zoom` is omitted), `drift` (+48 px when `to.x` is omitted), `crash-zoom` (reaches the target zoom in 6 frames), or `ots` (needs `foreground: {cast, side}`). A preset only fills defaults. `shake` is `{amp: 2-4, at, dur}` and lasts at most 8 frames. |
 
 `y` around 640–700 is a wide room. A face sits near `y: 500` once `zoom` is above 1.4. Street shots want `y` near 680 so the road and the tower crown both read.
 
@@ -131,7 +133,7 @@ Time of day is a separate hue bias (`day`, `dusk`, `night`). Weather is separate
 
 ### Sets
 
-`office`, `trading-floor`, `server-room`, `apartment`, `courtroom`, `dorm`, `factory`, `city-night`, `newsroom`.
+`office`, `trading-floor`, `server-room`, `apartment`, `courtroom`, `dorm`, `factory`, `city-night`, `newsroom`, `paper`, `evidence-table`, `video-call-grid`, `debate-split`.
 
 Each one fills backdrop, architecture, floor, and a foreground frame, and publishes slots (`desk-main`, `stamp`, `foreground`, `curb`, depending on the room). `setParams[name]` is passed through: `density` (`full` or `bare`), `brand`, `sign`, `poster`, `luxury`, `plots`, `crossX`, `wall`, `floor`, `ceiling`, `time`, `weather`.
 

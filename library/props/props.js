@@ -272,4 +272,71 @@
       c.b.setAttribute('fill', /CANCEL|DELAY|BANKRUPT/.test(v) ? C.coral : C.mint); }), 5);
     return {g, parts: {cells}, flip(row, t, text) { cells[row].track.set(t, text); }, animate() {}};
   };
+
+  // House-drawn story props. Deep-slate line, flat fills. Drop or slide in 0.35 s when anim.at is set.
+  const H_INK = '#141114', H_DEEP = '#28363F', H_PAPER = '#E3E1D5', H_RED = '#D94A3A', H_WOOD = '#A87145', H_GOLD = '#E2B657';
+  function house(parent, o, name) {
+    const g = S.g(parent, {class: 'ss-prop ss-prop-' + name, id: o.id || null, 'data-layout-ignore': '', transform: `translate(${o.x || 0} ${o.y || 0}) scale(${o.scale || 1})`});
+    const body = S.g(g);
+    return {g, body};
+  }
+  function drop(node, tl, start, end, op) {
+    const at = op && op.at != null ? op.at : start;
+    tl.set(node, {opacity: 0}, 0);
+    tl.fromTo(node, {y: -80, opacity: 0}, {y: 0, opacity: 1, duration: 0.35, ease: 'power3.out', immediateRender: false}, at);
+  }
+  P.invoice = function (parent, o) {
+    o = o || {}; const {g, body} = house(parent, o, 'invoice');
+    S.svg('rect', {x: -70, y: -120, width: 140, height: 110, rx: 2, fill: H_PAPER, stroke: H_DEEP, 'stroke-width': 3.5}, body);
+    S.svg('text', {x: 0, y: -96, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': 14, fill: H_INK}, body).textContent = 'INVOICE';
+    for (let i = 0; i < 4; i++) S.svg('line', {x1: -54, y1: -74 + i * 14, x2: 54, y2: -74 + i * 14, stroke: H_DEEP, 'stroke-width': 2}, body);
+    S.svg('rect', {x: -54, y: -18, width: 70, height: 12, fill: H_RED}, body);
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.stampLatvian = function (parent, o) {
+    o = o || {}; const {g, body} = house(parent, o, 'stampLatvian');
+    S.svg('circle', {cx: 0, cy: -36, r: 34, fill: 'none', stroke: H_RED, 'stroke-width': 4}, body);
+    S.svg('circle', {cx: 0, cy: -36, r: 26, fill: 'none', stroke: H_RED, 'stroke-width': 2}, body);
+    S.svg('text', {x: 0, y: -30, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': 11, fill: H_RED}, body).textContent = o.word || 'RIGA';
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.courtFolder = function (parent, o) {
+    o = o || {}; const {g, body} = house(parent, o, 'courtFolder');
+    S.svg('path', {d: 'M-78,-20 L-30,-20 L-18,-32 L70,-32 L78,-20 L78,48 L-78,48 Z', fill: '#C4B8A4', stroke: H_DEEP, 'stroke-width': 3.5, 'stroke-linejoin': 'round'}, body);
+    S.svg('rect', {x: -40, y: -8, width: 80, height: 22, fill: H_PAPER, stroke: H_DEEP, 'stroke-width': 2}, body);
+    S.svg('text', {x: 0, y: 8, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': 11, fill: H_INK}, body).textContent = o.label || o.word || 'FILE';
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.newspaper = function (parent, o) {
+    o = o || {}; const {g, body} = house(parent, o, 'newspaper');
+    S.svg('rect', {x: -90, y: -70, width: 180, height: 120, fill: H_PAPER, stroke: H_DEEP, 'stroke-width': 3.5}, body);
+    S.svg('text', {x: 0, y: -46, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': 13, fill: H_INK}, body).textContent = o.headline || o.word || 'THE LEDGER';
+    for (let i = 0; i < 4; i++) S.svg('line', {x1: -74, y1: -28 + i * 14, x2: 74, y2: -28 + i * 14, stroke: H_DEEP, 'stroke-width': 2}, body);
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.conveyorRack = function (parent, o) {
+    o = o || {}; const {g, body} = house(parent, o, 'conveyorRack');
+    S.svg('rect', {x: -110, y: -90, width: 220, height: 16, fill: '#5C6B73', stroke: H_DEEP, 'stroke-width': 3.5}, body);
+    S.svg('rect', {x: -100, y: -74, width: 12, height: 74, fill: '#5C6B73', stroke: H_DEEP, 'stroke-width': 3}, body);
+    S.svg('rect', {x: 88, y: -74, width: 12, height: 74, fill: '#5C6B73', stroke: H_DEEP, 'stroke-width': 3}, body);
+    S.svg('rect', {x: -70, y: -60, width: 140, height: 28, fill: H_PAPER, stroke: H_DEEP, 'stroke-width': 2.5}, body);
+    S.svg('text', {x: 0, y: -40, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': 9, fill: H_INK}, body).textContent = o.label || 'QUANTA COMPUTER';
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.deskLamp = function (parent, o) {
+    o = o || {}; const {g, body} = house(parent, o, 'deskLamp');
+    S.svg('ellipse', {cx: 0, cy: -8, rx: 36, ry: 10, fill: H_GOLD, opacity: 0.55}, body);
+    S.svg('path', {d: 'M-28,-70 L28,-70 L18,-28 L-18,-28 Z', fill: H_GOLD, stroke: H_DEEP, 'stroke-width': 3.5, 'stroke-linejoin': 'round'}, body);
+    S.svg('rect', {x: -4, y: -28, width: 8, height: 24, fill: '#5C6B73', stroke: H_DEEP, 'stroke-width': 2}, body);
+    S.svg('rect', {x: -16, y: -6, width: 32, height: 8, fill: '#3A2A1C', stroke: H_DEEP, 'stroke-width': 2}, body);
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
+  P.plant = function (parent, o) {
+    o = o || {}; const {g, body} = house(parent, o, 'plant');
+    S.svg('path', {d: 'M-16,-4 L16,-4 L20,16 L-20,16 Z', fill: '#6B4226', stroke: H_DEEP, 'stroke-width': 3.5}, body);
+    S.svg('ellipse', {cx: 0, cy: -28, rx: 16, ry: 20, fill: '#1F7A4D', stroke: H_DEEP, 'stroke-width': 3}, body);
+    S.svg('ellipse', {cx: -14, cy: -16, rx: 12, ry: 14, fill: '#1F7A4D', stroke: H_DEEP, 'stroke-width': 3}, body);
+    S.svg('ellipse', {cx: 14, cy: -18, rx: 11, ry: 13, fill: '#2E8B57', stroke: H_DEEP, 'stroke-width': 3}, body);
+    return {g, parts: {}, animate(tl, s, e, op) { drop(body, tl, s, e, op); }};
+  };
 })(window.Studio = window.Studio || {});

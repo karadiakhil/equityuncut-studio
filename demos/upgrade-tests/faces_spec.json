@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "id": "faces",
+  "duration": 1,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 1,
+  "stills": [0.5],
+  "shots": [
+    {"t": 0, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear",
+      "camera": {"x": 960, "y": 640, "zoom": 1.15, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "paper", "x": 300, "scale": 0.92, "workstation": false},
+    {"id": "suit", "cast": "TheSuit", "set": "paper", "x": 740, "scale": 0.92, "workstation": false},
+    {"id": "clip", "cast": "TheClipboard", "set": "paper", "x": 1180, "scale": 0.92, "workstation": false},
+    {"id": "schemer", "cast": "TheSchemer", "set": "paper", "x": 1620, "scale": 0.92, "workstation": false}
+  ]
+}

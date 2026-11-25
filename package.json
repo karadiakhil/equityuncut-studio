@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node build.mjs",
     "render:demo": "node tools/render-spec.mjs demos/nk-dorm-fbi/scene_spec.json --out renders/nk-dorm-fbi",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check:spec": "node tools/check_spec.mjs demos/nk-dorm-fbi/scene_spec.json",
+    "check": "node tools/check_spec.mjs demos/nk-dorm-fbi/scene_spec.json && node tools/check_vehicles.mjs demos/nk-dorm-fbi/scene_spec.json",
   },
   "keywords": [],
   "author": "",

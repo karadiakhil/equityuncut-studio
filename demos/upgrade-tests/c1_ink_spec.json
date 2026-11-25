@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "id": "c1-ink",
+  "duration": 3,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 1,
+  "stills": [0.5, 1.5, 2.5],
+  "shots": [
+    {"t": 0, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 960, "y": 700, "zoom": 1, "preset": "static"}},
+    {"t": 1, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 980, "y": 690, "zoom": 1, "preset": "static"}},
+    {"t": 2, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 1000, "y": 680, "zoom": 1, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "paper", "x": 280, "scale": 0.6, "workstation": false, "keys": [{"t": 1, "scale": 0.84}, {"t": 2, "scale": 1.1}]},
+    {"id": "suit", "cast": "TheSuit", "set": "paper", "x": 700, "scale": 0.6, "workstation": false, "keys": [{"t": 1, "scale": 0.84}, {"t": 2, "scale": 1.1}]},
+    {"id": "clip", "cast": "TheClipboard", "set": "paper", "x": 1160, "scale": 0.6, "workstation": false, "keys": [{"t": 1, "scale": 0.84}, {"t": 2, "scale": 1.1}]},
+    {"id": "schemer", "cast": "TheSchemer", "set": "paper", "x": 1600, "scale": 0.6, "workstation": false, "keys": [{"t": 1, "scale": 0.84}, {"t": 2, "scale": 1.1}]}
+  ]
+}

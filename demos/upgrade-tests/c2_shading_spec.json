@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "id": "c2-shading",
+  "duration": 2,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 1,
+  "stills": [0.5, 1.5],
+  "shots": [
+    {"t": 0, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "lightSide": -1, "camera": {"x": 960, "y": 700, "zoom": 1, "preset": "static"}},
+    {"t": 1, "dur": 1, "set": "paper", "lighting": "flat", "time": "day", "weather": "clear", "lightSide": 1, "camera": {"x": 1000, "y": 680, "zoom": 1, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "paper", "x": 280, "scale": 0.8, "workstation": false},
+    {"id": "suit", "cast": "TheSuit", "set": "paper", "x": 700, "scale": 0.8, "workstation": false},
+    {"id": "clip", "cast": "TheClipboard", "set": "paper", "x": 1160, "scale": 0.8, "workstation": false},
+    {"id": "schemer", "cast": "TheSchemer", "set": "paper", "x": 1600, "scale": 0.8, "workstation": false}
+  ]
+}

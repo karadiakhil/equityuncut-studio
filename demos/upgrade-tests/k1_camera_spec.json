@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "id": "k1-camera",
+  "duration": 10,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 5,
+  "stills": [0.8, 2.8, 4.3, 6.5, 8.8],
+  "shots": [
+    {"t": 0, "dur": 2, "set": "office", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"preset": "push", "x": 960, "y": 640, "zoom": 1}},
+    {"t": 2, "dur": 2, "set": "office", "lighting": "flat", "time": "day", "weather": "clear", "transition": "whip", "camera": {"preset": "drift", "x": 900, "y": 660, "zoom": 1.04}},
+    {"t": 4, "dur": 2, "set": "office", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"preset": "crash-zoom", "x": 1100, "y": 560, "zoom": 1.05, "shake": {"amp": 3, "at": 4.15, "dur": 0.2}}},
+    {"t": 6, "dur": 2, "set": "office", "lighting": "flat", "time": "day", "weather": "clear", "foreground": {"cast": "Milo", "side": "left"}, "camera": {"preset": "ots", "x": 1080, "y": 600, "zoom": 1.2}},
+    {"t": 8, "dur": 2, "set": "office", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"preset": "static", "x": 960, "y": 680, "zoom": 1.08}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "office", "x": 1100, "scale": 0.84, "workstation": false, "keys": [{"t": 0.2, "expression": "neutral", "gesture": "explain"}]}
+  ]
+}

@@ -8,7 +8,8 @@
   S.VISEMES = ['REST', 'MBP', 'FV', 'AI', 'E', 'O', 'U', 'LTH'];
   S.MOUTH_MOODS = ['smirk', 'frown', 'flat', 'grin', 'gasp', 'grimace'];
   // openness drives the jaw drop
-  S.VISEME_OPEN = {REST: 0, MBP: 0, FV: 0.15, AI: 1, E: 0.45, O: 0.8, U: 0.3, LTH: 0.5, smirk: 0, frown: 0, flat: 0, grin: 0.3, gasp: 1, grimace: 0.35};
+  S.VISEME_OPEN = {REST: 0, MBP: 0, FV: 0.15, AI: 1, E: 0.45, O: 0.8, U: 0.3, LTH: 0.5, smirk: 0, frown: 0, flat: 0, grin: 0.3, gasp: 1, grimace: 0.35,
+    A: 0, B: 0.22, C: 0.5, D: 1, E: 0.8, F: 0.32, G: 0.15, H: 0.55, X: 0};
 
   function interior(g, d, defs, teeth, tongue) {
     const id = S.uid('mo');
@@ -51,6 +52,32 @@
     return out;
   };
 
+  // Nine Rhubarb mouths as single ink shapes. No teeth. A tongue dot only on D and H. A white bar only on G.
+  S.PAPER_MOUTHS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'X'];
+  S.buildPaperMouths = function (g) {
+    const ink = '#141114';
+    const out = {};
+    const mk = (name, fn) => { const m = S.g(g, {'data-mouth': name, display: 'none'}); fn(m); out[name] = m; };
+    const inkPath = (m, d, w) => S.path(m, d, 'none', null, {stroke: ink, 'stroke-width': w || 3.2, 'stroke-linecap': 'round', fill: 'none'});
+    mk('X', (m) => inkPath(m, 'M-14,1 C-6,3.5 6,3.5 14,0.5', 3.2));
+    mk('A', (m) => S.path(m, 'M-13,0.4 C-6,-1.6 6,-1.6 13,0.4 C6,2.6 -6,2.6 -13,0.4 Z', ink, null, {stroke: ink, 'stroke-width': 1.6}));
+    mk('B', (m) => S.svg('ellipse', {cx: 0, cy: 2, rx: 8, ry: 5.2, fill: ink}, m));
+    mk('C', (m) => S.svg('ellipse', {cx: 0, cy: 4, rx: 11, ry: 9, fill: ink}, m));
+    mk('D', (m) => { S.svg('ellipse', {cx: 0, cy: 6, rx: 13, ry: 12, fill: ink}, m); S.svg('ellipse', {cx: 0, cy: 12, rx: 4, ry: 3, fill: '#E07A6A'}, m); });
+    mk('E', (m) => S.svg('ellipse', {cx: 0, cy: 3, rx: 7.6, ry: 8.2, fill: ink}, m));
+    mk('F', (m) => S.svg('ellipse', {cx: 0, cy: 2, rx: 4.4, ry: 5.4, fill: ink}, m));
+    mk('G', (m) => { S.svg('ellipse', {cx: 0, cy: 3, rx: 11, ry: 6.2, fill: ink}, m); S.svg('rect', {x: -7, y: 0.2, width: 14, height: 2.6, rx: 0.6, fill: '#FFFFFF'}, m); });
+    mk('H', (m) => { S.svg('ellipse', {cx: 0, cy: 4, rx: 11, ry: 8, fill: ink}, m); S.svg('ellipse', {cx: 1.2, cy: 8, rx: 3.2, ry: 2.6, fill: '#E07A6A'}, m); });
+    mk('smirk', (m) => inkPath(m, 'M-12,2 C-2,3 6,-1 13,-6'));
+    mk('frown', (m) => inkPath(m, 'M-12,5 C-4,0 4,0 12,5'));
+    mk('flat', (m) => inkPath(m, 'M-12,1 L12,1'));
+    mk('grin', (m) => S.svg('ellipse', {cx: 0, cy: 2, rx: 13, ry: 7, fill: ink}, m));
+    mk('gasp', (m) => S.svg('ellipse', {cx: 0, cy: 4, rx: 8, ry: 11, fill: ink}, m));
+    mk('grimace', (m) => S.path(m, 'M-13,-2 L13,-2 L12,6 L-12,6 Z', ink));
+    out.REST = out.X;
+    return out;
+  };
+
   // ---- text -> visemes ------------------------------------------------------------------------------------------
   const DIGRAPH = {th: 'LTH', sh: 'U', ch: 'U', oo: 'U', ee: 'E', ou: 'O', ow: 'O', ph: 'FV', wh: 'U', qu: 'U', ck: 'E', ng: 'E', ai: 'AI', ay: 'E', oa: 'O'};
   const SINGLE = {a: 'AI', i: 'AI', e: 'E', y: 'E', o: 'O', u: 'U', w: 'U', m: 'MBP', b: 'MBP', p: 'MBP', f: 'FV', v: 'FV',
@@ -62,8 +89,8 @@
     const out = [];
     for (let i = 0; i < s.length;) {
       const two = s.slice(i, i + 2);
-      if (DIGRAPH[two]) { out.push({v: DIGRAPH[two], w: VOWEL.test(two[0]) ? 1.5 : 0.9}); i += 2; continue; }
-      const c = s[i]; if (SINGLE[c]) out.push({v: SINGLE[c], w: VOWEL.test(c) ? 1.4 : (c === 'm' || c === 'b' || c === 'p' ? 0.9 : 0.7)});
+      if (DIGRAPH[two]) { out.push({v: DIGRAPH[two], w: VOWEL.test(two[0]) ? 1.5 : 0.9, kind: VOWEL.test(two[0]) ? 'v' : 'c'}); i += 2; continue; }
+      const c = s[i]; if (SINGLE[c]) out.push({v: SINGLE[c], w: VOWEL.test(c) ? 1.4 : (c === 'm' || c === 'b' || c === 'p' ? 0.9 : 0.7), kind: VOWEL.test(c) ? 'v' : 'c'});
       i++;
     }
     // silent trailing e
@@ -75,35 +102,52 @@
     const tot = units.reduce((a, u) => a + u.w, 0) || 1; let t = t0;
     for (const u of units) { const d = (t1 - t0) * u.w / tot; keys.push({t, v: u.v, d}); t += d; }
   }
-  function finish(keys, endT) {
+  const PAPER_LETTER = {MBP: 'A', AI: 'D', O: 'E', U: 'F', FV: 'G', LTH: 'H', REST: 'X'};
+  function paperLetter(k) {
+    if (k.v === 'E') return k.kind === 'v' ? 'C' : 'B';
+    return PAPER_LETTER[k.v] || 'X';
+  }
+  function finish(keys, endT, opts) {
+    opts = opts || {};
+    if (opts.style === 'paper9') keys.forEach((k) => { k.kind = k.kind || (k.v === 'E' ? 'c' : null); k.v = paperLetter(k); });
     // merge duplicates, then fold slivers shorter than 2 frames into neighbours (MBP closures survive at 1 frame)
     keys.sort((a, b) => a.t - b.t);
     const m = [];
     for (const k of keys) { const last = m[m.length - 1]; if (last && last.v === k.v) { last.d = k.t + k.d - last.t; continue; } m.push(Object.assign({}, k)); }
+    const paper = opts.style === 'paper9';
+    const fps = opts.fps || 30;
+    const minDur = paper ? ((opts.minHold == null ? 3 : opts.minHold) / fps) : MIN;
+    const minClose = paper ? (2 / fps) : (MIN / 2);
     const out = [];
     for (let i = 0; i < m.length; i++) {
       const k = m[i];
-      if (k.d < (k.v === 'MBP' ? MIN / 2 : MIN) && out.length && k.v !== 'REST') { out[out.length - 1].d += k.d; continue; }
+      const close = k.v === 'MBP' || k.v === 'A';
+      const keep = k.v === 'REST' || k.v === 'X';
+      if (k.d < (close ? minClose : minDur) && out.length && !keep) { out[out.length - 1].d += k.d; continue; }
       out.push(k);
     }
-    if (endT != null) out.push({t: endT, v: 'REST', d: 0});
+    if (endT != null) out.push({t: endT, v: paper ? 'X' : 'REST', d: 0});
     return out.map((k) => ({t: +k.t.toFixed(4), v: k.v}));
   }
   S.LipSync = {
     phonemes: phon,
     // words: [{word, start, end}]
-    fromWords(words, offset) {
-      offset = offset || 0; const keys = [];
+    fromWords(words, offset, opts) {
+      offset = offset || 0; opts = opts || {}; const keys = [];
       words.forEach((w, i) => {
         const t0 = w.start + offset, t1 = w.end + offset;
-        pushWord(keys, phon(w.word), t0, t1);
+        const units = phon(w.word);
+        pushWord(keys, units, t0, t1);
+        if (opts.style === 'paper9') {
+          units.forEach((u, n) => { const hit = keys[keys.length - units.length + n]; if (hit) hit.kind = u.kind; });
+        }
         const nx = words[i + 1];
-        if (!nx || nx.start - w.end > 0.12) keys.push({t: t1, v: 'REST', d: nx ? nx.start - w.end : 0.2});
+        if (!nx || nx.start - w.end > 0.12) keys.push({t: t1, v: 'REST', d: nx ? nx.start - w.end : 0.2, kind: 'c'});
       });
-      return finish(keys);
+      return finish(keys, null, opts);
     },
     // ElevenLabs /with-timestamps: {characters, character_start_times_seconds, character_end_times_seconds}
-    fromAlignment(al, offset) {
+    fromAlignment(al, offset, opts) {
       const words = []; let cur = null;
       al.characters.forEach((ch, i) => {
         const s = al.character_start_times_seconds[i], e = al.character_end_times_seconds[i];
@@ -112,7 +156,7 @@
         cur.word += ch; cur.end = e;
       });
       if (cur) words.push(cur);
-      return S.LipSync.fromWords(words, offset);
+      return S.LipSync.fromWords(words, offset, opts);
     },
     // lines: [{text, start, end}] -> word timings spread by syllable weight
     wordsFromLines(lines) {
@@ -129,6 +173,6 @@
       });
       return words;
     },
-    fromLines(lines, offset) { return S.LipSync.fromWords(S.LipSync.wordsFromLines(lines), offset); }
+    fromLines(lines, offset, opts) { return S.LipSync.fromWords(S.LipSync.wordsFromLines(lines), offset, opts); }
   };
 })(window.Studio = window.Studio || {});

@@ -1,5 +1,6 @@
 // Render a scene_spec.json through the studio page to stills and an MP4.
-//   node tools/render-spec.mjs <scene_spec.json> --out <dir> [--stills-only] [--at 1.2,4.4] [--fps 24]
+//   node tools/render-spec.mjs <scene_spec.json> --out <dir> [--stills-only] [--at 1.2,4.4] [--fps 30]
+// EU specs default to 30 fps and 1920×1080. Outline thickness is measured before camera zoom.
 // The page is demos/<folder>/index.html next to the spec. The spec object is injected
 // as window.__SPEC_OVERRIDE so the JSON file, not a hand-built timeline, drives the picture.
 import fs from 'node:fs';
@@ -16,7 +17,7 @@ const specPath = path.resolve(a[0]);
 const spec = JSON.parse(fs.readFileSync(specPath, 'utf8'));
 const outDir = path.resolve(opt('--out', path.join(path.dirname(specPath), 'renders')));
 const html = path.resolve(opt('--html', path.join(path.dirname(specPath), 'index.html')));
-const fps = +opt('--fps', spec.fps || 24);
+const fps = +opt('--fps', spec.fps || 30);
 const jpeg = +opt('--jpeg', 72);
 const stillsOnly = a.includes('--stills-only');
 const at = opt('--at', '');
@@ -52,7 +53,7 @@ await page.goto(pathToFileURL(html).href, {waitUntil: 'networkidle0', timeout: 6
 await page.evaluate(async () => { if (window.__ready) await window.__ready; });
 const boot = await page.evaluate(() => ({error: window.__sceneError || null, dur: window.__scene && window.__scene.tl ? window.__scene.tl.duration() : null, id: window.__scene && window.__scene.spec && window.__scene.spec.id}));
 if (boot.error) throw new Error(boot.error);
-console.log('scene', boot.id, 'timeline', boot.dur);
+console.log('scene', boot.id, 'timeline', boot.dur, 'fps', fps, 'frames', Math.round(spec.duration * fps));
 
 async function grab(t, file, quiet) {
   await page.evaluate((time) => {
@@ -83,4 +84,15 @@ if (!stillsOnly) {
   execFileSync('ffmpeg', ['-nostdin', '-y', '-framerate', String(fps), '-i', path.join(frameDir, 'frame_%04d.jpg'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-movflags', '+faststart', mp4], {stdio: 'inherit'});
   console.log('video', mp4);
 }
+const report = {
+  id: spec.id || null,
+  fps: fps,
+  duration: spec.duration,
+  frames: Math.round(spec.duration * fps),
+  size: [(spec.size && spec.size[0]) || 1920, (spec.size && spec.size[1]) || 1080],
+  stills: times
+};
+fs.writeFileSync(path.join(outDir, 'render_report.json'), JSON.stringify(report, null, 2));
+console.log('report', path.join(outDir, 'render_report.json'));
+
 await browser.close();

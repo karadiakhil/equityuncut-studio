@@ -38,16 +38,65 @@
   };
 
   // ---- geometry (character-local: feet at y 0, x right) ------------------------------------------------------------
-  const HEAD = {cy: -482, r: 100};
-  const HK = HEAD.r / 64;                      // rig8 hair is authored on an r 64 head
-  const hp = (d) => S.xfPath(d, HK, 0, HEAD.cy);
+  // Module constants are geom({}) so a paper8() call with no proportion options matches today's rig.
+  // Chin stays put: a larger head grows upward. Sole y=10, chin y=-382 → height = 392 + diameter.
   const J8 = {
     pelvis: [0, -120], hipL: [-26, -112], hipR: [26, -112], kneeL: [-27, -62], kneeR: [27, -62], ankleL: [-28, -14], ankleR: [28, -14],
     neck: [0, -386], headPivot: [0, -396], shoulderL: [-76, -350], shoulderR: [76, -350], elbowL: [-94, -248], elbowR: [94, -248],
     wristL: [-86, -140], wristR: [86, -140]
   };
-  const BEAN = 'M-56,-394 C-80,-390 -90,-332 -91,-252 C-92,-170 -72,-100 0,-100 C72,-100 92,-170 91,-252 C90,-332 80,-390 56,-394 Z';
-  S.PAPER8 = {J: J8, HEAD, BEAN, INK};
+  const BEAN0 = 'M-56,-394 C-80,-390 -90,-332 -91,-252 C-92,-170 -72,-100 0,-100 C72,-100 92,-170 91,-252 C90,-332 80,-390 56,-394 Z';
+  const CHIN_Y = -382, SOLE_Y = 10;
+  // head diameter / (392 + diameter) = target. Measured screen ratio runs a little high because the outline is included.
+  const PAPER40_HEAD = (0.42 * (SOLE_Y - CHIN_Y)) / (1 - 0.42) / 200;
+  const PAPER37_HEAD = (0.36 * (SOLE_Y - CHIN_Y)) / (1 - 0.36) / 200;
+  function scalePathX(d, k) {
+    if (k === 1) return d;
+    const out = [];
+    const re = /([MLCQSTHVAZ])([^MLCQSTHVAZ]*)/gi;
+    let m;
+    while ((m = re.exec(d))) {
+      const c = m[1].toUpperCase();
+      const nums = (m[2].match(/-?\d*\.?\d+(?:e-?\d+)?/gi) || []).map(Number);
+      if (c === 'Z') { out.push('Z'); continue; }
+      const r = [];
+      if (c === 'H') nums.forEach((v) => r.push((v * k).toFixed(2)));
+      else if (c === 'V') nums.forEach((v) => r.push(String(v)));
+      else if (c === 'A') for (let i = 0; i + 6 < nums.length + 1; i += 7) r.push((nums[i] * k).toFixed(2), nums[i + 1], nums[i + 2], nums[i + 3], nums[i + 4], (nums[i + 5] * k).toFixed(2), nums[i + 6]);
+      else for (let i = 0; i + 1 < nums.length; i += 2) r.push((nums[i] * k).toFixed(2) + ',' + nums[i + 1]);
+      out.push(c + r.join(' '));
+    }
+    return out.join(' ');
+  }
+  function geom(o) {
+    o = o || {};
+    let headScale = o.headScale == null ? 1 : o.headScale;
+    if (o.proportions === 'paper40') headScale = PAPER40_HEAD;
+    else if (o.proportions === 'paper37') headScale = PAPER37_HEAD;
+    else if (o.proportions === 'legacy') headScale = 1;
+    const bodyW = o.bodyW == null ? 1 : o.bodyW;
+    const legLen = o.legLen == null ? 1 : o.legLen;
+    const r = 100 * headScale;
+    const cy = CHIN_Y - r;
+    const HEAD = {cy: cy, r: r};
+    const HK = r / 64;
+    const J = {};
+    Object.keys(J8).forEach((k) => { J[k] = [J8[k][0], J8[k][1]]; });
+    if (legLen !== 1) ['L', 'R'].forEach((s) => {
+      const hipY = J8['hip' + s][1];
+      J['knee' + s][1] = hipY + (J8['knee' + s][1] - hipY) * legLen;
+      J['ankle' + s][1] = hipY + (J8['ankle' + s][1] - hipY) * legLen;
+    });
+    return {
+      HEAD: HEAD, HK: HK, J: J, BEAN: scalePathX(BEAN0, bodyW), headScale: headScale, bodyW: bodyW, legLen: legLen,
+      hp: (d) => S.xfPath(d, HK, 0, cy)
+    };
+  }
+  const G0 = geom({});
+  const HEAD = G0.HEAD;
+  const hp = G0.hp;
+  S.paperGeom = geom;
+  S.PAPER8 = {J: G0.J, HEAD: G0.HEAD, BEAN: G0.BEAN, INK: INK, PAPER40_HEAD: PAPER40_HEAD, PAPER37_HEAD: PAPER37_HEAD};
 
   // ---- mitten hands (wrist at 0,0, fingers toward +y, thumb toward -x; right hand) ---------------------------------
   const MITT = {
@@ -87,7 +136,7 @@
       const inner = S.g(eg, {'clip-path': `url(#${cid})`});
       const iris = S.g(inner);
       S.svg('ellipse', {cx, cy, rx, ry, fill: F.eyeColor || '#19161B'}, iris);
-      S.svg('ellipse', {cx: cx - rx * 0.3, cy: cy - ry * 0.4, rx: rx * 0.32, ry: ry * 0.27, fill: '#FFFFFF', opacity: 0.95}, iris);
+      if (!F.matte) S.svg('ellipse', {cx: cx - rx * 0.3, cy: cy - ry * 0.4, rx: rx * 0.32, ry: ry * 0.27, fill: '#FFFFFF', opacity: 0.95, 'data-gloss': '1'}, iris);
       const dollar = S.svg('text', {x: cx, y: cy + ry * 0.7, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': ry * 2.2, fill: S.PALETTE.emeraldDeep, display: 'none'}, inner);
       dollar.textContent = '$';
       const top = cy - ry - 6;
@@ -127,33 +176,73 @@
       band: 'M6,-84 Q40,-90 60,-66'
     }
   };
-  function hair(style, color) {
+  function hair(style, color, map) {
     const h = HAIR[style];
+    map = map || hp;
     const lite = (hex, kk) => { const v = parseInt(hex.slice(1, 7), 16); return '#' + [v >> 16, (v >> 8) & 255, v & 255].map((c) => Math.round(c + (255 - c) * kk).toString(16).padStart(2, '0')).join(''); };
     return {
       color, shade: color, strandColor: INK, sheenColor: lite(color, 0.3),
-      back: hp(h.back), main: hp(h.main), front: hp(h.main),
-      strands: h.strands.map(hp), sheen: [hp(h.band)]
+      back: map(h.back), main: map(h.main), front: map(h.main),
+      strands: h.strands.map(map), sheen: [map(h.band)]
     };
   }
 
   // ---- body pieces ----------------------------------------------------------------------------------------------------
-  function sheen(g, ctx, id) {   // head: soft shade toward the lower right + one crisp white rim line (rig8 sheen8)
-    const gid = S.uid('hs');
-    const rg = S.svg('radialGradient', {id: gid, cx: '0.42', cy: '0.3', r: '0.85'}, ctx.defs);
-    S.svg('stop', {offset: '0.5', 'stop-color': '#000', 'stop-opacity': 0}, rg);
-    S.svg('stop', {offset: '1', 'stop-color': '#3A2418', 'stop-opacity': 0.24}, rg);
-    S.svg('circle', {cx: 0, cy: HEAD.cy, r: HEAD.r + 2, fill: `url(#${gid})`}, g);
-    S.path(g, `M${HEAD.r * 0.88},${HEAD.cy - HEAD.r * 0.42} C${HEAD.r * 0.98},${HEAD.cy} ${HEAD.r * 0.95},${HEAD.cy + HEAD.r * 0.4} ${HEAD.r * 0.78},${HEAD.cy + HEAD.r * 0.7}`, 'none', null, {stroke: '#FFFFFF', 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.75, fill: 'none'});
+  function darken(hex, amt) {
+    const v = parseInt(String(hex).slice(1, 7), 16);
+    const f = (c) => Math.max(0, Math.min(255, Math.round(c * (1 - amt))));
+    return '#' + [f(v >> 16), f((v >> 8) & 255), f(v & 255)].map((c) => c.toString(16).padStart(2, '0')).join('');
   }
-  function bodyShade(g, ctx) {   // vertical light, darker toward the hem; one shadow tone on the side away from the key
-    const gid = S.uid('bs');
-    const lg = S.svg('linearGradient', {id: gid, x1: '0', y1: '0', x2: '0', y2: '1'}, ctx.defs);
-    S.svg('stop', {offset: '0', 'stop-color': '#FFFFFF', 'stop-opacity': 0.1}, lg);
-    S.svg('stop', {offset: '0.45', 'stop-color': '#000', 'stop-opacity': 0}, lg);
-    S.svg('stop', {offset: '1', 'stop-color': '#14100E', 'stop-opacity': 0.3}, lg);
-    S.svg('rect', {x: -100, y: -400, width: 200, height: 304, fill: `url(#${gid})`}, g);
-    S.path(g, 'M58,-380 C84,-330 92,-250 86,-180 C80,-130 60,-104 30,-100 L100,-100 L100,-400 Z', '#000', null, {opacity: 0.12});
+  function markFlip(g, ctx) {
+    const flip = S.g(g, {'data-light-flip': '1'});
+    ctx.lightFlips = ctx.lightFlips || [];
+    ctx.lightFlips.push(flip);
+    return flip;
+  }
+  function sheen(g, ctx) {   // head shade. 'soft' keeps the radial wash. 'hard' (default) is one 25% crescent.
+    const H = (ctx.geom && ctx.geom.HEAD) || HEAD;
+    if ((ctx.cfg.shading || 'hard') === 'soft') {
+      const gid = S.uid('hs');
+      const rg = S.svg('radialGradient', {id: gid, cx: '0.42', cy: '0.3', r: '0.85'}, ctx.defs);
+      S.svg('stop', {offset: '0.5', 'stop-color': '#000', 'stop-opacity': 0}, rg);
+      S.svg('stop', {offset: '1', 'stop-color': '#3A2418', 'stop-opacity': 0.24}, rg);
+      S.svg('circle', {cx: 0, cy: H.cy, r: H.r + 2, fill: `url(#${gid})`}, g);
+      S.path(g, `M${H.r * 0.88},${H.cy - H.r * 0.42} C${H.r * 0.98},${H.cy} ${H.r * 0.95},${H.cy + H.r * 0.4} ${H.r * 0.78},${H.cy + H.r * 0.7}`, 'none', null, {stroke: '#FFFFFF', 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.75, fill: 'none'});
+      return;
+    }
+    const flip = markFlip(g, ctx);
+    const hs = (ctx.geom && ctx.geom.headScale) || 1;
+    const dx = 18 * hs, dy = 10 * hs;
+    const d = ctx.cfg.head.d;
+    const id = S.uid('hsh');
+    S.path(S.svg('clipPath', {id}, ctx.defs), d);
+    const c = S.g(flip, {'clip-path': `url(#${id})`});
+    const shade = S.path(c, d, '#000', null, {opacity: 0.25});
+    shade.style.mixBlendMode = 'multiply';
+    S.path(c, d, ctx.cfg.skin, null, {transform: `translate(${(-dx).toFixed(2)} ${(-dy).toFixed(2)})`});
+    // rim sits on the lit edge (left when lightSide is -1). The flip group mirrors it with the key.
+    S.path(flip, `M${(-H.r * 0.88).toFixed(2)},${(H.cy - H.r * 0.42).toFixed(2)} C${(-H.r * 0.98).toFixed(2)},${H.cy} ${(-H.r * 0.95).toFixed(2)},${(H.cy + H.r * 0.4).toFixed(2)} ${(-H.r * 0.78).toFixed(2)},${(H.cy + H.r * 0.7).toFixed(2)}`, 'none', null, {stroke: '#FFFFFF', 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.75, fill: 'none', 'data-screen-px': '3'});
+    const band = darken(ctx.cfg.hair.color || '#2A211D', 0.28);
+    const by = H.cy - H.r * 0.62;
+    S.path(flip, `M${(-H.r * 0.45).toFixed(2)},${by.toFixed(2)} Q0,${(by + H.r * 0.08).toFixed(2)} ${(H.r * 0.5).toFixed(2)},${(by + H.r * 0.02).toFixed(2)}`, 'none', null, {stroke: band, 'stroke-width': (8 * hs).toFixed(2), 'stroke-linecap': 'round', opacity: 0.9, fill: 'none'});
+  }
+  function bodyShade(g, ctx) {   // 'soft' keeps the vertical gradient. 'hard' is one multiply band on the shadow side.
+    if ((ctx.cfg.shading || 'hard') === 'soft') {
+      const gid = S.uid('bs');
+      const lg = S.svg('linearGradient', {id: gid, x1: '0', y1: '0', x2: '0', y2: '1'}, ctx.defs);
+      S.svg('stop', {offset: '0', 'stop-color': '#FFFFFF', 'stop-opacity': 0.1}, lg);
+      S.svg('stop', {offset: '0.45', 'stop-color': '#000', 'stop-opacity': 0}, lg);
+      S.svg('stop', {offset: '1', 'stop-color': '#14100E', 'stop-opacity': 0.3}, lg);
+      S.svg('rect', {x: -100, y: -400, width: 200, height: 304, fill: `url(#${gid})`}, g);
+      S.path(g, 'M58,-380 C84,-330 92,-250 86,-180 C80,-130 60,-104 30,-100 L100,-100 L100,-400 Z', '#000', null, {opacity: 0.12});
+      return;
+    }
+    const flip = markFlip(g, ctx);
+    const bw = (ctx.geom && ctx.geom.bodyW) || 1;
+    const x = (n) => (n * bw).toFixed(2);
+    const d = `M${x(58)},-380 C${x(84)},-330 ${x(92)},-250 ${x(86)},-180 C${x(80)},-130 ${x(60)},-104 ${x(30)},-100 L${x(110)},-100 L${x(110)},-400 Z`;
+    const shade = S.path(flip, d, '#000', null, {opacity: 0.25});
+    shade.style.mixBlendMode = 'multiply';
   }
   const OUTFIT = {
     hoodie(g, o) {
@@ -208,47 +297,66 @@
    *  bottom, shirt, tie, accent, shoe, eyeColor, stature}. */
   S.paper8 = function (o) {
     const skin = o.skin || '#E2BFA3';
+    const g = geom(o);
+    const H = g.HEAD, hs = g.headScale;
+    const crownY = H.cy - H.r;
+    const top = Math.min(-640, crownY - 48);
+    const view = (hs === 1 && g.bodyW === 1 && g.legLen === 1) ? [-260, -640, 520, 700] : [-280, top, 560, (SOLE_Y - top) + 80];
+    const meta = {
+      name: o.name, skin: skin, skinShade: o.skinShade, hair: o.hair, glasses: o.glasses, crooked: o.crooked,
+      outfit: o.outfit, top: o.top, top2: o.top2, bottom: o.bottom, shirt: o.shirt, tie: o.tie, accent: o.accent,
+      shoe: o.shoe, eyeColor: o.eyeColor, browColor: o.browColor, stature: o.stature,
+      shading: o.shading, lightSide: o.lightSide, headScale: o.headScale, bodyW: o.bodyW, legLen: o.legLen,
+      proportions: o.proportions, inkPx: o.inkPx, face: o.face || null
+    };
+    const faceOpt = o.face || {};
+    const browW = faceOpt.browW == null ? 3.8 : faceOpt.browW;
     const cfg = {
-      name: o.name, paper: true, ink: 4.2, armW: 8, noBlush: true,
-      view: [-260, -640, 520, 700],
+      name: o.name, paper: true, ink: 4.2, inkPx: o.inkPx == null ? 6 : o.inkPx, armW: 8, noBlush: true,
+      shading: o.shading || 'hard', lightSide: o.lightSide == null ? -1 : o.lightSide,
+      view: view, geom: g, meta: meta,
       skin, skinShade: o.skinShade || '#C49A7C', lid: skin,
       shadowRx: 84, handScale: 1, handMount: [0, 15],
       drawHand: S.drawMitten, handPoses: S.PAPER_HAND_POSES,
-      joints: J8, sole: [[-12, 10], [24, 10]],
+      joints: g.J, sole: [[-12, 10], [24, 10]],
       rest: {armLL: 0, armRL: 0, lidL: 0, lidR: 0, lidBL: 0, lidBR: 0, blush: 0, glint: -1},
-      head: {d: `M0,${HEAD.cy - HEAD.r} A${HEAD.r},${HEAD.r} 0 1,1 -0.1,${HEAD.cy - HEAD.r} Z`, crown: [0, HEAD.cy - HEAD.r + 6], extras: sheen},
-      hair: hair(o.hair[0], o.hair[1]),
+      head: {d: `M0,${crownY} A${H.r},${H.r} 0 1,1 -0.1,${crownY} Z`, crown: [0, crownY + 6 * hs], extras: sheen},
+      hair: hair(o.hair[0], o.hair[1], g.hp),
       badge: [30, -350],
       face: {
-        eyeY: HEAD.cy + 6, eyeDX: 31, eyeRX: 8.6, eyeRY: 11.8, irisR: 8, eyeColor: o.eyeColor,
-        browY: HEAD.cy - 24, browDX: 15, browLen: 25, browW: 3.8, browArch: 3, browColor: o.browColor || INK,
-        mouthY: HEAD.cy + 50, mouthScale: 1.5, cheekDX: 50, cheekY: HEAD.cy + 30, templeX: HEAD.r - 4, nose: null
+        eyeY: H.cy + 6 * hs, eyeDX: 31 * hs, eyeRX: 8.6 * hs, eyeRY: 11.8 * hs, irisR: 8 * hs, eyeColor: o.eyeColor,
+        browY: H.cy - 24 * hs, browDX: 15 * hs, browLen: 25 * hs, browW: browW * hs, browArch: (faceOpt.browArch == null ? 3 : faceOpt.browArch) * hs, browColor: faceOpt.browColor || o.browColor || INK,
+        matte: faceOpt.matte === true,
+        mouthY: H.cy + 50 * hs, mouthScale: 1.5 * hs, cheekDX: 50 * hs, cheekY: H.cy + 30 * hs, templeX: H.r - 4 * hs, nose: null
       },
       draw: {
         legUpper(g, s, ctx) { const a = ctx.J['hip' + s], b = ctx.J['knee' + s]; S.path(g, `M${a[0]},${a[1] - 6} L${b[0]},${b[1]}`, 'none', null, {stroke: INK, 'stroke-width': 7.5, 'stroke-linecap': 'round'}); },
         legLower(g, s, ctx) { const a = ctx.J['knee' + s], b = ctx.J['ankle' + s]; S.path(g, `M${a[0]},${a[1]} L${b[0]},${b[1]}`, 'none', null, {stroke: INK, 'stroke-width': 7.5, 'stroke-linecap': 'round'}); },
         foot(g, s) { shoe(g, s, o.shoe || '#1E1E22'); },
-        torso(g, ctx) {
+        torso(gg, ctx) {
+          const BEAN = ctx.geom.BEAN;
           const cid = S.uid('bean');
           S.path(S.svg('clipPath', {id: cid}, ctx.defs), BEAN);
-          S.path(g, BEAN, o.top);
-          const c = S.g(g, {'clip-path': `url(#${cid})`});
+          S.path(gg, BEAN, o.top);
+          const c = S.g(gg, {'clip-path': `url(#${cid})`});
+          const bw = ctx.geom.bodyW || 1;
           if (o.outfit !== 'trench') {
-            S.svg('rect', {x: -100, y: -146, width: 200, height: 50, fill: o.bottom || '#2B2F3A'}, c);
-            S.path(c, 'M-100,-146 L100,-146', 'none', null, {stroke: INK, 'stroke-width': 2.4, opacity: 0.7});
+            S.svg('rect', {x: -100 * bw, y: -146, width: 200 * bw, height: 50, fill: o.bottom || '#2B2F3A'}, c);
+            S.path(c, `M${-100 * bw},-146 L${100 * bw},-146`, 'none', null, {stroke: INK, 'stroke-width': 2.4, opacity: 0.7});
           }
           OUTFIT[o.outfit](c, o);
           bodyShade(c, ctx);
-          S.path(g, BEAN, 'none', null, {stroke: INK, 'stroke-width': 4.2, 'stroke-linejoin': 'round'});
+          S.path(gg, BEAN, 'none', null, {stroke: INK, 'stroke-width': 4.2, 'stroke-linejoin': 'round'});
         },
         neck() {},
         armUpper() {},
         armLower() {}
       }
     };
-    if (o.glasses === 'wire') cfg.glasses = {shape: 'round', rx: 17, ry: 16, crooked: o.crooked || 0, color: '#1A1A1E', weight: 2.6, tint: 'rgba(220,235,245,0.10)', bridge: `M-14 ${HEAD.cy + 4} Q0 ${HEAD.cy - 3} 14 ${HEAD.cy + 4}`};
-    if (o.glasses === 'rect') cfg.glasses = {shape: 'rect', rx: 19, ry: 13, crooked: 0, color: '#1A1A1E', weight: 3, tint: 'rgba(220,235,245,0.08)', bridge: `M-12 ${HEAD.cy + 4} L12 ${HEAD.cy + 4}`};
-    if (o.glasses === 'shades') cfg.glasses = {shape: 'rect', rx: 21, ry: 12.5, crooked: 0, color: '#0B0B0C', weight: 3, tint: 'rgba(14,16,22,0.92)', bridge: `M-10 ${HEAD.cy + 2} Q0 ${HEAD.cy - 3} 10 ${HEAD.cy + 2}`};
+    const gy = H.cy;
+    if (o.glasses === 'wire') cfg.glasses = {shape: 'round', rx: 17 * hs, ry: 16 * hs, crooked: o.crooked || 0, color: '#1A1A1E', weight: 2.6 * hs, tint: 'rgba(220,235,245,0.10)', bridge: `M${-14 * hs} ${gy + 4 * hs} Q0 ${gy - 3 * hs} ${14 * hs} ${gy + 4 * hs}`};
+    if (o.glasses === 'rect') cfg.glasses = {shape: 'rect', rx: 19 * hs, ry: 13 * hs, crooked: 0, color: '#1A1A1E', weight: 3 * hs, tint: 'rgba(220,235,245,0.08)', bridge: `M${-12 * hs} ${gy + 4 * hs} L${12 * hs} ${gy + 4 * hs}`};
+    if (o.glasses === 'shades') cfg.glasses = {shape: 'rect', rx: 21 * hs, ry: 12.5 * hs, crooked: 0, color: '#0B0B0C', weight: 3 * hs, tint: 'rgba(14,16,22,0.92)', bridge: `M${-10 * hs} ${gy + 2 * hs} Q0 ${gy - 3 * hs} ${10 * hs} ${gy + 2 * hs}`};
     // held props for verbs (gesture "phone")
     cfg.heldProps = {
       phone(g) {
@@ -264,13 +372,17 @@
   // ---- the house cast, rebuilt on the paper grammar ------------------------------------------------------------------
   ['Milo', 'TheSuit', 'TheClipboard', 'TheSchemer'].forEach((k) => { if (Cast[k] && !Cast[k].paper) Cast[k + 'V1'] = Cast[k]; });
   Cast.Milo = S.paper8({name: 'Milo', skin: '#EAC2A0', hair: ['tousle', '#2A211D'], glasses: 'wire', crooked: 2,
-    outfit: 'hoodie', top: '#C8302C', top2: '#A3231F', bottom: '#2F3A55', shoe: '#F1EFE8'});
+    outfit: 'hoodie', top: '#C8302C', top2: '#A3231F', bottom: '#2F3A55', shoe: '#F1EFE8',
+    proportions: 'paper37', face: {matte: true, browW: 5.2}});
   Cast.TheSuit = S.paper8({name: 'TheSuit', skin: '#E2BB98', hair: ['swept', '#A4A9AF'],
-    outfit: 'suit', top: '#23283A', top2: '#151927', shirt: '#F4F1EA', tie: '#E8B43A', bottom: '#1C2030', shoe: '#141416', accent: '#F4EEDC'});
+    outfit: 'suit', top: '#23283A', top2: '#151927', shirt: '#F4F1EA', tie: '#E8B43A', bottom: '#1C2030', shoe: '#141416', accent: '#F4EEDC',
+    proportions: 'paper37', face: {matte: true, browW: 6.8}});
   Cast.TheClipboard = S.paper8({name: 'TheClipboard', skin: '#D9AC88', hair: ['parted', '#5A3A24'], glasses: 'rect',
-    outfit: 'shirt', top: '#A9C6E6', shirt: '#F4F7FB', tie: '#25344F', bottom: '#B59A6E', shoe: '#5A3A24', accent: '#2563EB'});
+    outfit: 'shirt', top: '#A9C6E6', shirt: '#F4F7FB', tie: '#25344F', bottom: '#B59A6E', shoe: '#5A3A24', accent: '#2563EB',
+    proportions: 'paper37', face: {matte: true, browW: 5.6}});
   Cast.TheSchemer = S.paper8({name: 'TheSchemer', skin: '#C99474', skinShade: '#A8775A', hair: ['slick', '#1C1A1E'], glasses: 'shades',
-    outfit: 'trench', top: '#B78A52', top2: '#94693A', shirt: '#26262B', bottom: '#26262B', shoe: '#2A1E16'});
+    outfit: 'trench', top: '#B78A52', top2: '#94693A', shirt: '#26262B', bottom: '#26262B', shoe: '#2A1E16',
+    proportions: 'paper37', face: {matte: true, browW: 7.4}});
   // TheClipboard keeps its clipboard in the right hand
   Cast.TheClipboard = Object.freeze(Object.assign({}, Cast.TheClipboard, {restHandR: 'grip-prop',
     draw: Object.assign({}, Cast.TheClipboard.draw, {mountR(g) { if (S.Props.clipboard) S.Props.clipboard(g, {x: 0, y: 26, scale: 0.42, rot: 180}); }})}));

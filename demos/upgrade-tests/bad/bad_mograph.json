@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "duration": 2,
+  "fps": 30,
+  "size": [
+    1920,
+    1080
+  ],
+  "seed": 1,
+  "shots": [
+    {
+      "t": 0,
+      "dur": 2,
+      "set": "office",
+      "lighting": "flat",
+      "time": "day",
+      "weather": "clear",
+      "camera": {
+        "x": 960,
+        "y": 640,
+        "zoom": 1
+      }
+    }
+  ],
+  "characters": [
+    {
+      "id": "milo",
+      "cast": "Milo",
+      "set": "office",
+      "x": 960,
+      "scale": 0.84
+    }
+  ],
+  "mograph": [
+    {
+      "type": "hologram",
+      "t": 0.2,
+      "out": 1.5
+    }
+  ]
+}
