@@ -1,0 +1,120 @@
+/* generated from scene_spec.json by tools/bind-spec.mjs */
+window.SCENE_SPEC = {
+  "version": 1,
+  "id": "nk-dorm-fbi",
+  "title": "The dorm that hired America",
+  "duration": 40,
+  "fps": 24,
+  "size": [1920, 1080],
+  "seed": 7,
+  "stills": [1.3, 4.3, 6.4, 8.6, 11.0, 13.5, 15.6, 18.0, 20.5, 22.8, 25.2, 27.8, 30.4, 33.0, 35.3, 38.4],
+  "brands": [
+    {"id": "northline", "name": "NORTHLINE", "short": "NL", "tag": "SYSTEMS", "primary": "#0B1F33", "accent": "#F5C542", "trim": "#E8EEF5"},
+    {"id": "harbor", "name": "HARBOR", "short": "HF", "tag": "FIELD", "primary": "#16324A", "accent": "#7DD3FC", "trim": "#F4E8C8"},
+    {"id": "redcab", "name": "REDCAB", "short": "RC", "tag": "HAIL", "primary": "#B91C1C", "accent": "#FDE68A", "trim": "#FFFDF9"},
+    {"id": "kiln", "name": "KILN", "short": "KF", "tag": "FREIGHT", "primary": "#3F3F46", "accent": "#FB923C", "trim": "#F5F5F4"},
+    {"id": "lumen", "name": "LUMEN", "short": "LB", "tag": "BANK", "primary": "#065F46", "accent": "#F5C542", "trim": "#ECFDF5"},
+    {"id": "nightwire", "name": "NIGHTWIRE", "short": "NW", "tag": "NEWS", "primary": "#1E1B4B", "accent": "#F87171", "trim": "#F8FAFC"}
+  ],
+  "setParams": {
+    "city-night": {
+      "crossX": 1120,
+      "plots": [
+        {"x": 40, "kind": "shop", "w": 200, "brand": "redcab", "sign": "REDCAB"},
+        {"x": 260, "kind": "apartment", "w": 220, "floors": 7, "brand": "harbor", "sign": "HARBOR HOUSE"},
+        {"x": 500, "kind": "bank", "w": 240, "floors": 5, "brand": "lumen", "sign": "LUMEN BANK"},
+        {"x": 760, "kind": "office", "w": 200, "floors": 8, "brand": "northline", "sign": "NORTHLINE"},
+        {"x": 980, "kind": "hq", "w": 300, "floors": 14, "brand": "northline", "sign": "NORTHLINE"},
+        {"x": 1300, "kind": "factory", "w": 260, "floors": 4, "brand": "kiln", "sign": "KILN FREIGHT"}
+      ]
+    },
+    "dorm": {"poster": "NO WINDOWS", "brand": "northline"},
+    "office": {"sign": "FIELD OFFICE", "brand": "harbor"},
+    "newsroom": {"sign": "NIGHTWIRE", "brand": "nightwire", "bug": "CASE FILE"}
+  },
+  "shots": [
+    {"t": 0.0, "dur": 2.6, "set": "city-night", "lighting": "street-night", "time": "night", "weather": "rain", "camera": {"x": 520, "y": 700, "zoom": 1.02, "to": {"x": 820, "y": 680, "zoom": 1.1}, "ease": "sine.inOut"}},
+    {"t": 2.6, "dur": 2.6, "set": "city-night", "lighting": "street-night", "time": "night", "weather": "rain", "camera": {"x": 1040, "y": 690, "zoom": 1.12, "to": {"x": 1180, "y": 640, "zoom": 1.28}, "ease": "power2.inOut"}},
+    {"t": 5.2, "dur": 2.4, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "haze", "transition": "cut", "camera": {"x": 1040, "y": 600, "zoom": 1.04, "to": {"x": 1140, "y": 560, "zoom": 1.14}}},
+    {"t": 7.6, "dur": 2.3, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "haze", "camera": {"x": 1160, "y": 520, "zoom": 1.4, "to": {"x": 1180, "y": 490, "zoom": 1.62}, "ease": "power2.out"}},
+    {"t": 9.9, "dur": 2.4, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "haze", "camera": {"x": 1160, "y": 560, "zoom": 1.2, "to": {"x": 1120, "y": 540, "zoom": 1.28}}},
+    {"t": 12.3, "dur": 2.3, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "haze", "camera": {"x": 1100, "y": 600, "zoom": 1.08, "to": {"x": 1160, "y": 580, "zoom": 1.16}}},
+    {"t": 14.6, "dur": 2.2, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "haze", "camera": {"x": 1160, "y": 500, "zoom": 1.35, "to": {"x": 1120, "y": 480, "zoom": 1.5}}},
+    {"t": 16.8, "dur": 2.5, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "haze", "camera": {"x": 1080, "y": 620, "zoom": 1.05, "to": {"x": 1100, "y": 600, "zoom": 1.08}}},
+    {"t": 19.3, "dur": 2.4, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "clear", "camera": {"x": 1000, "y": 640, "zoom": 1.02, "to": {"x": 1080, "y": 620, "zoom": 1.08}}},
+    {"t": 21.7, "dur": 2.3, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "haze", "camera": {"x": 1280, "y": 560, "zoom": 1.2, "to": {"x": 1320, "y": 540, "zoom": 1.28}}},
+    {"t": 24.0, "dur": 2.6, "set": "office", "lighting": "newsroom", "time": "day", "weather": "clear", "transition": "whip", "camera": {"x": 960, "y": 600, "zoom": 1.04, "to": {"x": 1100, "y": 560, "zoom": 1.12}}},
+    {"t": 26.6, "dur": 2.4, "set": "office", "lighting": "newsroom", "time": "day", "weather": "clear", "camera": {"x": 1100, "y": 600, "zoom": 1.12, "to": {"x": 1200, "y": 560, "zoom": 1.22}}},
+    {"t": 29.0, "dur": 2.6, "set": "office", "lighting": "newsroom", "time": "day", "weather": "clear", "camera": {"x": 1080, "y": 640, "zoom": 1.05, "to": {"x": 1160, "y": 600, "zoom": 1.12}}},
+    {"t": 31.6, "dur": 2.4, "set": "office", "lighting": "interrogation", "time": "night", "weather": "clear", "camera": {"x": 1240, "y": 520, "zoom": 1.38, "to": {"x": 1280, "y": 480, "zoom": 1.62}, "ease": "power2.out"}},
+    {"t": 34.0, "dur": 2.6, "set": "newsroom", "lighting": "newsroom", "time": "day", "weather": "clear", "transition": "whip", "camera": {"x": 960, "y": 580, "zoom": 1.06, "to": {"x": 1060, "y": 560, "zoom": 1.14}}},
+    {"t": 36.6, "dur": 3.4, "set": "office", "lighting": "newsroom", "time": "dusk", "weather": "clear", "camera": {"x": 1000, "y": 600, "zoom": 1.02, "to": {"x": 1140, "y": 560, "zoom": 1.1}}}
+  ],
+  "vehicles": [
+    {"id": "sedan", "kind": "car", "set": "city-night", "brand": "northline", "fromX": 180, "toX": 1080, "y": 992, "t": 0.15, "dur": 4.6, "ease": "power2.out", "scale": 1},
+    {"id": "cab", "kind": "taxi", "set": "city-night", "brand": "redcab", "fromX": 2200, "toX": 240, "y": 868, "t": 0.05, "dur": 4.2, "scale": 0.72},
+    {"id": "unit", "kind": "police", "set": "city-night", "brand": "harbor", "x": 1320, "y": 992, "facing": -1, "scale": 0.9},
+    {"id": "box", "kind": "truck", "set": "city-night", "brand": "kiln", "layer": 1, "fromX": 1900, "toX": 160, "y": 736, "t": 0, "dur": 9, "scale": 0.5},
+    {"id": "shuttle", "kind": "van", "set": "city-night", "brand": "lumen", "layer": 1, "fromX": 80, "toX": 1700, "y": 748, "t": 0.3, "dur": 7, "scale": 0.46},
+    {"id": "flight", "kind": "jet", "set": "city-night", "brand": "northline", "fromX": -180, "toX": 2500, "y": 150, "t": 0.2, "dur": 6.5, "scale": 0.62},
+    {"id": "hull", "kind": "ship", "set": "city-night", "brand": "kiln", "fromX": 360, "toX": 980, "y": 586, "t": 0, "dur": 40, "scale": 0.5}
+  ],
+  "characters": [
+    {
+      "id": "milo", "cast": "Milo", "set": "dorm", "x": 1160, "scale": 0.84, "brand": "northline",
+      "keys": [
+        {"t": 0.3, "expression": "tired", "gesture": "type", "look": {"x": 0.05, "y": 0.7}, "turn": 0.12, "ease": "settle"},
+        {"t": 7.6, "expression": "focused", "gesture": "type", "look": {"x": 0.1, "y": 0.75}, "ease": "anticipate"},
+        {"t": 10.05, "expression": "talk", "say": {"text": "Remote means anywhere.", "dur": 1.7}},
+        {"t": 14.65, "expression": "shocked", "gesture": "hands-up", "ease": "overshoot"},
+        {"t": 19.4, "expression": "suspicious", "gesture": "point", "ease": "anticipate"},
+        {"t": 21.75, "expression": "whisper", "gesture": "phone", "look": {"x": 0.8, "y": 0.2}}
+      ]
+    },
+    {
+      "id": "roomie", "cast": "TheSchemer", "set": "dorm", "x": 760, "scale": 0.72,
+      "keys": [
+        {"t": 0.4, "expression": "smug", "gesture": "type", "turn": -0.3, "ease": "settle"},
+        {"t": 14.7, "expression": "shocked", "gesture": "hands-up", "ease": "overshoot"},
+        {"t": 16.5, "expression": "smug", "gesture": "type", "ease": "settle"}
+      ]
+    },
+    {
+      "id": "suit", "cast": "TheSuit", "set": "office", "x": 1260, "scale": 0.82, "brand": "harbor",
+      "keys": [
+        {"t": 23.7, "expression": "deadpan", "gesture": "fold", "ease": "settle"},
+        {"t": 26.65, "expression": "suspicious", "gesture": "point", "ease": "anticipate"},
+        {"t": 29.05, "expression": "shocked", "gesture": "hands-up", "ease": "overshoot"},
+        {"t": 31.7, "expression": "talk", "gesture": "explain", "say": {"text": "Six point three billion.", "dur": 1.8}}
+      ]
+    },
+    {
+      "id": "clip", "cast": "TheClipboard", "set": "office", "x": 620, "scale": 0.78, "brand": "harbor",
+      "keys": [
+        {"t": 24.05, "expression": "suspicious", "walk": {"from": 620, "to": 960, "dur": 1.45}},
+        {"t": 26.7, "expression": "angry", "gesture": "point", "ease": "snap"}
+      ]
+    }
+  ],
+  "props": [
+    {"id": "dorm-mug", "set": "dorm", "slot": "desk-main", "kind": "mug", "scale": 0.48},
+    {"id": "ledger", "set": "office", "slot": "desk-main", "kind": "ledger", "scale": 0.42},
+    {"id": "seized", "set": "office", "slot": "stamp", "kind": "stamp", "word": "SEIZED", "scale": 0.7, "anim": {"at": 27.15}}
+  ],
+  "mograph": [
+    {"type": "caption", "t": 0.25, "out": 2.35, "kicker": "VIRGINIA", "text": "A STREET WITH NO NAME"},
+    {"type": "caption", "t": 2.85, "out": 4.95, "kicker": "NORTHLINE HQ", "text": "THE CAR STOPS"},
+    {"type": "caption", "t": 5.4, "out": 7.35, "kicker": "2:14 AM", "text": "THE DORM ROOM"},
+    {"type": "laptop", "t": 10.0, "out": 12.15, "brand": "northline", "title": "night-shift.sh", "lines": ["$ ssh contractor@northline", "auth ........ ok", "desk: virginia-04", "payroll.add(63000)"]},
+    {"type": "money", "t": 12.45, "out": 14.4, "from": 0, "to": 63000, "prefix": "$", "decimals": 0, "label": "FIRST TRANSFER", "dur": 1.15},
+    {"type": "kinetic", "t": 14.75, "out": 16.55, "text": "YOU'RE HIRED", "y": 168, "size": 78, "highlight": ["HIRED"], "highlightColor": "#F5C542"},
+    {"type": "map", "t": 16.95, "out": 19.15, "title": "THE ROUTE", "from": "PYONGYANG", "to": "VIRGINIA", "via": "A REMOTE HIRE"},
+    {"type": "evidence", "t": 19.45, "out": 21.55, "x": 700, "y": 200, "kicker": "CONTRACT", "title": "REMOTE ROLE", "stamp": "FAKE", "lines": [{"text": "ROLE   NIGHT IT"}, {"text": "SITE   U.S. OFFICE", "redact": 0.46}, {"text": "PAY    $63,000"}]},
+    {"type": "phone", "t": 21.85, "out": 23.85, "brand": "northline", "x": 1280, "y": 140, "messages": [{"from": "NORTHLINE HR", "text": "You are hired. Start tonight."}, {"from": "PAYROLL", "text": "First transfer sent."}]},
+    {"type": "caption", "t": 24.25, "out": 26.35, "kicker": "FIELD OFFICE", "text": "THEY OPEN THE FILE"},
+    {"type": "evidence", "t": 26.75, "out": 28.85, "x": 680, "y": 180, "kicker": "CASE", "title": "HARBOR FILE", "stamp": "SEIZED", "lines": [{"text": "WORKER  K. PAK"}, {"text": "HOST    NORTHLINE"}, {"text": "LOSS    SEE COUNT"}]},
+    {"type": "money", "t": 29.15, "out": 31.45, "from": 0, "to": 6.3, "prefix": "$", "suffix": " BILLION", "decimals": 1, "label": "THE TAKE", "dur": 1.3, "size": 88},
+    {"type": "caption", "t": 34.2, "out": 36.4, "kicker": "NIGHTWIRE", "text": "REMOTE JOB. REAL THEFT."},
+    {"type": "kinetic", "t": 36.85, "out": 39.7, "text": "THEY NEVER LEFT THE DORM.", "y": 860, "size": 52, "highlight": ["NEVER"], "highlightColor": "#F87171"}
+  ]
+};

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "id": "set-gallery",
+  "title": "Set and lighting gallery",
+  "duration": 9,
+  "fps": 24,
+  "size": [1920, 1080],
+  "seed": 3,
+  "stills": [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5],
+  "brands": [
+    {"id": "northline", "name": "NORTHLINE", "short": "NL", "tag": "SYSTEMS", "primary": "#0B1F33", "accent": "#F5C542", "trim": "#E8EEF5"},
+    {"id": "harbor", "name": "HARBOR", "short": "HF", "tag": "FIELD", "primary": "#16324A", "accent": "#7DD3FC", "trim": "#F4E8C8"},
+    {"id": "redcab", "name": "REDCAB", "short": "RC", "tag": "HAIL", "primary": "#B91C1C", "accent": "#FDE68A", "trim": "#FFFDF9"},
+    {"id": "kiln", "name": "KILN", "short": "KF", "tag": "FREIGHT", "primary": "#3F3F46", "accent": "#FB923C", "trim": "#F5F5F4"},
+    {"id": "lumen", "name": "LUMEN", "short": "LB", "tag": "BANK", "primary": "#065F46", "accent": "#F5C542", "trim": "#ECFDF5"},
+    {"id": "nightwire", "name": "NIGHTWIRE", "short": "NW", "tag": "NEWS", "primary": "#1E1B4B", "accent": "#F87171", "trim": "#F8FAFC"}
+  ],
+  "setParams": {
+    "apartment": {"luxury": true, "brand": "lumen"},
+    "city-night": {"weather": "rain", "time": "night"}
+  },
+  "shots": [
+    {"t": 0, "dur": 1, "set": "city-night", "lighting": "street-night", "time": "night", "weather": "rain", "camera": {"x": 980, "y": 680, "zoom": 1.08, "to": {"x": 1100, "y": 660, "zoom": 1.14}}},
+    {"t": 1, "dur": 1, "set": "office", "lighting": "night-office", "time": "night", "weather": "clear", "camera": {"x": 1000, "y": 640, "zoom": 1.06}},
+    {"t": 2, "dur": 1, "set": "trading-floor", "lighting": "night-office", "time": "night", "weather": "clear", "camera": {"x": 860, "y": 620, "zoom": 1.08}},
+    {"t": 3, "dur": 1, "set": "server-room", "lighting": "server-room", "time": "night", "weather": "haze", "camera": {"x": 900, "y": 640, "zoom": 1.05}},
+    {"t": 4, "dur": 1, "set": "apartment", "lighting": "luxury", "time": "dusk", "weather": "clear", "camera": {"x": 900, "y": 640, "zoom": 1.06}},
+    {"t": 5, "dur": 1, "set": "courtroom", "lighting": "newsroom", "time": "day", "weather": "clear", "camera": {"x": 960, "y": 620, "zoom": 1.04}},
+    {"t": 6, "dur": 1, "set": "dorm", "lighting": "dorm-night", "time": "night", "weather": "haze", "camera": {"x": 1100, "y": 660, "zoom": 1.08}},
+    {"t": 7, "dur": 1, "set": "factory", "lighting": "night-office", "time": "day", "weather": "clear", "camera": {"x": 860, "y": 660, "zoom": 1.04}},
+    {"t": 8, "dur": 1, "set": "newsroom", "lighting": "newsroom", "time": "day", "weather": "clear", "camera": {"x": 980, "y": 620, "zoom": 1.06}}
+  ],
+  "vehicles": [
+    {"id": "sedan", "kind": "car", "set": "city-night", "brand": "northline", "fromX": 400, "toX": 1100, "y": 992, "t": 0, "dur": 1, "ease": "none"},
+    {"id": "cab", "kind": "taxi", "set": "city-night", "brand": "redcab", "x": 760, "y": 868, "scale": 0.7, "facing": -1}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "dorm", "x": 1160, "scale": 0.84, "keys": [{"t": 6.05, "expression": "focused", "gesture": "type", "look": {"y": 0.6}}]},
+    {"id": "suit", "cast": "TheSuit", "set": "office", "x": 1180, "scale": 0.8, "brand": "harbor", "keys": [{"t": 1.05, "expression": "deadpan", "gesture": "fold"}]}
+  ]
+}
