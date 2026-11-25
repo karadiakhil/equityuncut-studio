@@ -11,7 +11,43 @@ node tools/render-spec.mjs demos/nk-dorm-fbi/scene_spec.json --out renders/nk-do
 
 `ELEVENLABS_API_KEY` stays in the environment. Nothing in this repo reads or stores it.
 
-The local prop-SVG library (tens of thousands of files) is not in git. Point at it with `window.Studio.PROP_SVG_ROOT` or, for node tools, `PROP_SVG_ROOT`. `Studio.propSvgPath("desks/oak.svg")` joins that root and rejects `..`. A spec can list `"file"` on a prop as a reference; the renderer draws built-in `kind` props and records the external path on `scene.propFiles` without copying the file into the bundle.
+The local prop-SVG library (tens of thousands of files) is not in git. Point at it with `window.Studio.PROP_SVG_ROOT` or, for node tools, `PROP_SVG_ROOT` (default: `../story_video/assets/props` next to this repo). `Studio.propSvgPath("desks/oak.svg")` joins that root and rejects `..`.
+
+Sets are dressed from that library. `tools/render-spec.mjs` scans the bundle and the spec for `"<set>/<name>.svg"` refs and bare `fluent-emoji` names, reads them under `PROP_SVG_ROOT`, and injects them as `window.__PROP_SVGS`. Nothing is copied into the bundle. `Studio.libProp(parent, "fluent-emoji/books.svg", {x, y, size, ink})` places one inline. It prefixes the ids and adds the house ink edge. A page opened without the injection still renders: library dressing is skipped and built-ins stay. A spec prop with `"file"` is recorded on `scene.propFiles`.
+
+### Cast (rig8 "paper" grammar)
+
+`Milo`, `TheSuit`, `TheClipboard` and `TheSchemer` are built with `Studio.paper8()` (`cast/paper8.js`), a port of `story_video/tools/puppet/rig8.mjs`:
+
+- a big round head with no ears or nose;
+- dark oval eyes with a catch-light, flattened by skin lids;
+- thin brows that carry the acting;
+- a bean torso with a vertical sheen and a trouser band;
+- thin ink legs;
+- noodle arms: one ink curve shoulder > elbow > wrist, redrawn every frame from the FK chain;
+- mitten hands with a thumb and a slight curl.
+
+The old sculpted rigs remain as `MiloV1`, `TheSuitV1`, `TheClipboardV1` and `TheSchemerV1`.
+
+Acting (`actions/acting.js`, a port of act7) solves every gesture as wrist targets with 2-bone IK on the character's own joints:
+
+- joints cascade: the upper arm leads, then the forearm overshoots, then the hand drags;
+- the two hands are offset by 0.06–0.1 s;
+- big moves get an anticipation dip, and the body leans with a counter head tilt;
+- holds keep moving instead of freezing;
+- hand angles are locked to the world (fingers up for hands-up and phone, down onto the keys for typing).
+
+A character whose keys include `"gesture": "type"` is seated at a workstation (`Studio.Workstation.attach`): a chair behind, the desk top and keyboard between body and arms, and a desk front over the legs. The wrists rest on the keys and tap in an irregular alternating rhythm. `"workstation": false` opts out; an object passes options (`side`, `width`, `drop`, `clutter`).
+
+### Vehicles
+
+The art faces +x and the facing always follows the direction of travel. Position is analytic, `fromX + span * ease(u)`, which gives three things:
+
+- wheels roll exactly the distance travelled, with no sliding;
+- the body pitches nose-up on acceleration and dips on braking;
+- the brake light follows deceleration.
+
+Lettering never mirrors. `node tools/check_vehicles.mjs <spec>` measures facing and roll ratio in layer space and exits non-zero on failure.
 
 `node build.mjs` still concatenates the engine to `dist/studio.js`. `tools/parse_script.mjs` is unchanged.
 
@@ -131,7 +167,7 @@ Keys are absolute times:
 
 `kind`: `car`, `taxi`, `police`, `van`, `truck`, `jet`, `ship`.
 
-`fromX` / `toX` drive along the street. Omit them and set `x` to park. `facing` is `1` or `-1` (inferred from the direction when omitted). `layer` defaults to 2 for cars, 1 for van and truck, 0 for jet and ship. Wheel spin, brake lights, the police bar, and the jet turbine are functions of time, so a seek lands on the same frame.
+`fromX` / `toX` drive along the street. Omit them and set `x` to park. `facing` (`1` or `-1`) applies only to parked vehicles; a moving vehicle always faces its direction of travel. `layer` defaults to 2 for cars, 1 for van and truck, 0 for jet and ship. Wheel spin, brake lights, the police bar, and the jet turbine are functions of time, so a seek lands on the same frame.
 
 ### Props
 

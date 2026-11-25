@@ -58,13 +58,12 @@
       wash(el, {background: 'radial-gradient(ellipse 28% 24% at 70% 62%, rgba(255,186,120,0.22), rgba(0,0,0,0) 72%)', mixBlendMode: 'screen'});
       wash(el, {background: 'radial-gradient(ellipse 80% 74% at 50% 50%, rgba(0,0,0,0) 50%, rgba(40,24,10,0.55) 100%)'});
     },
-    'dorm-night'(el) {
-      wash(el, {background: 'rgba(10,14,24,0.34)', mixBlendMode: 'multiply'});
-      wash(el, {background: 'radial-gradient(ellipse 46% 42% at 58% 46%, rgba(255,236,200,0.20), rgba(0,0,0,0) 68%)', mixBlendMode: 'screen'});
-      wash(el, {background: 'radial-gradient(ellipse 22% 18% at 30% 24%, rgba(255,196,120,0.55), rgba(0,0,0,0) 70%)', mixBlendMode: 'screen'});
-      wash(el, {background: 'radial-gradient(ellipse 40% 26% at 60% 58%, rgba(45,212,191,0.38), rgba(0,0,0,0) 72%)', mixBlendMode: 'screen'});
-      wash(el, {background: 'radial-gradient(ellipse 18% 14% at 78% 60%, rgba(56,189,248,0.28), rgba(0,0,0,0) 70%)', mixBlendMode: 'screen'});
-      wash(el, {background: 'radial-gradient(ellipse 78% 72% at 50% 48%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.62) 100%)'});
+    'dorm-night'(el) {   // engine-fix-01: readable, not murky. One warm bare-bulb key, teal screen spill at desk height
+      wash(el, {background: 'rgba(16,22,34,0.16)', mixBlendMode: 'multiply'});
+      wash(el, {background: 'radial-gradient(ellipse 52% 60% at 50% 16%, rgba(255,214,150,0.46), rgba(255,214,150,0.08) 55%, rgba(0,0,0,0) 75%)', mixBlendMode: 'screen'});
+      wash(el, {background: 'radial-gradient(ellipse 60% 26% at 52% 82%, rgba(94,234,212,0.20), rgba(0,0,0,0) 72%)', mixBlendMode: 'screen'});
+      wash(el, {background: 'linear-gradient(250deg, rgba(125,190,255,0.14) 0%, rgba(0,0,0,0) 38%)', mixBlendMode: 'screen'});
+      wash(el, {background: 'radial-gradient(ellipse 80% 76% at 50% 46%, rgba(0,0,0,0) 56%, rgba(10,12,18,0.46) 100%)'});
     },
     'street-night'(el) {
       wash(el, {background: 'rgba(6,10,22,0.42)', mixBlendMode: 'multiply'});
@@ -93,7 +92,7 @@
       wash(times.night, {background: 'rgba(8,14,32,0.18)', mixBlendMode: 'multiply'});
       const weathers = {};
       WEATHERS.forEach((n) => { weathers[n] = plane(root, 'wx-' + n); });
-      wash(weathers.haze, {background: 'radial-gradient(ellipse 90% 80% at 50% 42%, rgba(190,210,225,0.10), rgba(170,196,214,0.38))'});
+      wash(weathers.haze, {background: 'linear-gradient(180deg, rgba(220,210,190,0.14), rgba(200,205,210,0.04) 55%, rgba(0,0,0,0) 80%)'});   // light atmosphere at the ceiling, never a grey veil
       const rainSvg = S.svg('svg', {width: 1920, height: 1080, viewBox: '0 0 1920 1080', style: 'position:absolute;inset:0'}, weathers.rain);
       const drops = [];
       const rnd = S.rng((o.seed || 77) >>> 0);

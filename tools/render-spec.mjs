@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import puppeteer from 'puppeteer-core';
 import {chromePath, chromeArgs} from './chrome.mjs';
 
@@ -29,7 +30,24 @@ const page = await browser.newPage();
 page.on('pageerror', (e) => console.error('pageerror', e));
 page.on('console', (m) => { if (m.type() === 'error') console.error('console', m.text()); });
 await page.setViewport({width: (spec.size && spec.size[0]) || 1920, height: (spec.size && spec.size[1]) || 1080, deviceScaleFactor: 1});
-await page.evaluateOnNewDocument((payload) => { window.__SPEC_OVERRIDE = payload; }, spec);
+// Local prop-SVG library: every "<set>/<name>.svg" ref named in the engine bundle or the spec is read under PROP_SVG_ROOT
+// (default: ../story_video/assets/props next to shared-studio) and injected as window.__PROP_SVGS. Nothing is copied.
+const here = path.dirname(fileURLToPath(import.meta.url));
+const propRoot = process.env.PROP_SVG_ROOT || path.resolve(here, '..', '..', 'story_video', 'assets', 'props');
+const propSvgs = {};
+if (fs.existsSync(propRoot)) {
+  const bundle = fs.readFileSync(path.resolve(here, '..', 'dist', 'studio.js'), 'utf8') + JSON.stringify(spec);
+  const refs = new Set([...bundle.matchAll(/["']([\w-]+\/[\w.-]+\.svg)["']/g)].map((m) => m[1]));
+  // set dressing names refs by bare fluent-emoji name (FE('books'), shelf items): any quoted word with a file there
+  for (const m of bundle.matchAll(/["']([a-z0-9]+(?:-[a-z0-9]+)*)["']/g)) if (fs.existsSync(path.join(propRoot, 'fluent-emoji', m[1] + '.svg'))) refs.add('fluent-emoji/' + m[1] + '.svg');
+  for (const ref of refs) {
+    const f = path.resolve(propRoot, ref);
+    if (!f.startsWith(path.resolve(propRoot)) || !fs.existsSync(f)) continue;
+    propSvgs[ref] = fs.readFileSync(f, 'utf8');
+  }
+  console.log('prop svgs', Object.keys(propSvgs).length, 'from', propRoot);
+} else console.warn('PROP_SVG_ROOT not found:', propRoot, '(library props fall back to built-ins)');
+await page.evaluateOnNewDocument((payload, props, root) => { window.__SPEC_OVERRIDE = payload; window.__PROP_SVGS = props; window.Studio = window.Studio || {}; window.Studio.PROP_SVG_ROOT = root; }, spec, propSvgs, propRoot.replace(/\\/g, '/'));
 await page.goto(pathToFileURL(html).href, {waitUntil: 'networkidle0', timeout: 60000});
 await page.evaluate(async () => { if (window.__ready) await window.__ready; });
 const boot = await page.evaluate(() => ({error: window.__sceneError || null, dur: window.__scene && window.__scene.tl ? window.__scene.tl.duration() : null, id: window.__scene && window.__scene.spec && window.__scene.spec.id}));
@@ -62,7 +80,7 @@ if (!stillsOnly) {
     if (i % fps === 0) console.log('frame', i + '/' + n);
   }
   const mp4 = path.join(outDir, (spec.id || 'scene') + '.mp4');
-  execFileSync('ffmpeg', ['-y', '-framerate', String(fps), '-i', path.join(frameDir, 'frame_%04d.jpg'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-movflags', '+faststart', mp4], {stdio: 'inherit'});
+  execFileSync('ffmpeg', ['-nostdin', '-y', '-framerate', String(fps), '-i', path.join(frameDir, 'frame_%04d.jpg'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-movflags', '+faststart', mp4], {stdio: 'inherit'});
   console.log('video', mp4);
 }
 await browser.close();

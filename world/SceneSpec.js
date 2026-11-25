@@ -67,8 +67,9 @@
           seed: spec.seed || 1, brands: brands, density: 'full',
           time: first.time || 'day', weather: first.weather || 'clear'
         }, (spec.setParams && spec.setParams[name]) || {});
+        params.charHost = stage.layers[3].html;
         const rec = S.Sets.build(stage, name, params);
-        rec.chars = [];
+        rec.chars = rec.chars || [];
         sets[name] = rec;
       });
       const light = S.Lighting.mount(stage.el, {preset: shots[0].lighting || 'flat', time: shots[0].time || 'day', weather: shots[0].weather || 'clear', seed: spec.seed || 1});
@@ -122,7 +123,7 @@
         const fromX = v.fromX != null ? v.fromX : (v.x || 0);
         const toX = v.toX != null ? v.toX : fromX;
         const y = v.y == null ? S.World.STREET.near : v.y;
-        const veh = S.World.vehicle(rec.L[layer], {kind: v.kind, brand: S.Brand.get(brands, v.brand), x: fromX, y: y, scale: v.scale || 1, facing: v.facing || 1});
+        const veh = S.World.vehicle(rec.L[layer], {kind: v.kind, brand: S.Brand.get(brands, v.brand), x: fromX, y: y, scale: v.scale || 1, facing: toX !== fromX ? (toX < fromX ? -1 : 1) : (v.facing || 1)});
         S.World.drive(tl, veh, {fromX: fromX, toX: toX, fromY: y, toY: v.toY != null ? v.toY : y, t: v.t, dur: v.dur, ease: v.ease, facing: v.facing});
       });
       const cast = [];
@@ -137,6 +138,13 @@
         rec.chars.push(ch);
         cast.push(ch);
         if (c.brand) S.Brand.pin(ch, S.Brand.get(brands, c.brand));
+        // a paper figure that types is seated at its own workstation (hands rest on the keys, desk hides the legs)
+        const types = (c.keys || []).some((k) => k.gesture === 'type');
+        const ws = c.workstation === undefined ? types : c.workstation;
+        if (ws && ch.cfg.paper && S.Workstation) {
+          const b = c.brand ? S.Brand.get(brands, c.brand) : null;
+          S.Workstation.attach(ch, Object.assign({side: (c.x || 960) < 960 ? -1 : 1, logo: b ? b.accent : null}, typeof ws === 'object' ? ws : {}));
+        }
         S.Direct.keys(tl, ch, c.keys || [], spec.duration);
       });
       (spec.mograph || []).forEach((m) => {

@@ -188,8 +188,11 @@
   };
 
   // idle life between beats: slow weight shift, finite
-  A.idle = function (tl, ch, start, end, seed) {
-    const r = S.rng(seed || S.hash(ch.id)); let t = start;
-    while (t < end - 0.8) { const d = 1.2 + r() * 1.2; tl.to(ch.p, {lean: (r() - 0.5) * 1.6, duration: Math.min(d, end - t), ease: 'sine.inOut'}, t); t += d; }
+  A.idle = function (tl, ch, start, end, seed, amp) {   // weight shift + a slow head drift, finite (act7 alive idle)
+    const r = S.rng(seed || S.hash(ch.id)); let t = start; amp = amp == null ? 1 : amp;
+    while (t < end - 0.8) { const d = 1.2 + r() * 1.2, dd = Math.min(d, end - t);
+      tl.to(ch.p, {lean: (r() - 0.5) * 1.6 * amp, duration: dd, ease: 'sine.inOut'}, t);
+      if (ch.cfg.paper) tl.to(ch.p, {neck: (r() - 0.5) * 3, duration: dd * 0.9, ease: 'sine.inOut'}, t + 0.15);
+      t += d; }
   };
 })(window.Studio = window.Studio || {});

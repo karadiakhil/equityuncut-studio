@@ -20,7 +20,7 @@ if (!CHROME) throw new Error('Chrome/Edge not found. Set CHROME_PATH.');
 const b = await puppeteer.launch({executablePath: CHROME, headless: 'new', args: chromeArgs});
 const t = await b.newPage(); await t.setViewport({width: 1920, height: 1080});
 const errs = []; t.on('pageerror', (e) => errs.push(String(e)));
-await t.goto(pathToFileURL(path.resolve(dir, 'index.html')).href, {waitUntil: 'networkidle0'});
+await t.goto(pathToFileURL(dir.endsWith('.html') ? path.resolve(dir) : path.resolve(dir, 'index.html')).href, {waitUntil: 'networkidle0'});   // a project dir or one composition file
 await t.evaluate(() => document.fonts.ready);
 const res = await t.evaluate(async (FPS) => {
   const key = Object.keys(window.__timelines || {})[0]; const tl = window.__timelines[key];

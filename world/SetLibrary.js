@@ -163,6 +163,28 @@
     S.svg('ellipse', {cx: x, cy: y + 30, rx: 70, ry: 28, fill: '#FDE68A', opacity: 0.18}, g);
   }
 
+  // a prop from the local SVG library (story_video/assets/props); fallback() draws the built-in when it is not injected
+  function lib(g, ref, x, y, size, o, fallback) {
+    const made = S.libProp ? S.libProp(g, ref, Object.assign({x, y, size}, o || {})) : null;
+    if (!made && fallback) fallback();
+    return made;
+  }
+  const FE = (n) => 'fluent-emoji/' + n + '.svg';
+  function shelf(g, x, y, w, items) {   // wall shelf with library items standing on it
+    S.svg('rect', {x: x, y: y, width: w, height: 10, rx: 2, fill: '#65432C', stroke: INK, 'stroke-width': 2.4}, g);
+    S.path(g, 'M' + (x + 14) + ' ' + (y + 10) + ' l10 18 M' + (x + w - 14) + ' ' + (y + 10) + ' l-10 18', 'none', null, {stroke: '#42271C', 'stroke-width': 4});
+    let cx = x + 18;
+    items.forEach((it) => { lib(g, FE(it[0]), cx + it[1] / 2, y, it[1], {shadow: false}); cx += it[1] + 6; });
+  }
+  function conduit(g, y) {   // pipes / cable runs along the ceiling line
+    S.path(g, 'M-200 ' + y + ' L2400 ' + y, 'none', null, {stroke: '#1E262D', 'stroke-width': 10});
+    S.path(g, 'M-200 ' + (y + 16) + ' L2400 ' + (y + 16), 'none', null, {stroke: '#3B4650', 'stroke-width': 6});
+    for (let x = 0; x < 2400; x += 260) S.svg('rect', {x: x, y: y - 8, width: 14, height: 34, rx: 2, fill: '#2B333B', stroke: INK, 'stroke-width': 1.4}, g);
+  }
+  function droop(g, x1, x2, y, sag, col) {
+    S.path(g, 'M' + x1 + ' ' + y + ' Q' + ((x1 + x2) / 2) + ' ' + (y + sag) + ' ' + x2 + ' ' + y, 'none', null, {stroke: col || '#141416', 'stroke-width': 3, fill: 'none'});
+  }
+
   function room(rec, o) {
     const G = rec.L;
     outside(G[0], o);
@@ -199,6 +221,20 @@
         cable(rec.L[2], 1200, 740, 1100, 940);
         powerStrip(rec.L[2], 500, 930);
         crate(rec.L[2], 200, 1000, 70, 48, brand);
+        lib(rec.L[2], FE('file-cabinet'), 90, 1000, 150);
+        lib(rec.L[2], FE('file-cabinet'), 1880, 1000, 150);
+        lib(rec.L[1], FE('framed-picture'), 880, 300, 80, {shadow: false});
+        lib(rec.L[1], FE('spiral-calendar'), 1000, 300, 70, {shadow: false});
+        lib(rec.L[1], FE('world-map'), 640, 560, 150, {shadow: false});
+        shelf(rec.L[1], 1500, 520, 260, [['books', 58], ['card-index', 50], ['bookmark-tabs', 46], ['books', 54]]);
+        lib(rec.L[2], FE('telephone'), 1460, 786, 52);
+        lib(rec.L[2], FE('hot-beverage'), 560, 786, 40);
+        lib(rec.L[2], FE('open-file-folder'), 760, 786, 56);
+        lib(rec.L[2], FE('newspaper'), 1110, 786, 54);
+        lib(rec.L[2], FE('printer'), 330, 786, 70);
+        lib(rec.L[2], FE('wastebasket'), 960, 1000, 64);
+        lib(rec.L[2], FE('fire-extinguisher'), 1790, 960, 70);
+        lib(rec.L[2], FE('potted-plant'), 1580, 1000, 110);
         S.svg('rect', {x: 1680, y: 430, width: 70, height: 110, fill: brand.primary, stroke: INK, 'stroke-width': 1.5}, rec.L[1]);
         S.svg('rect', {x: 1692, y: 560, width: 6, height: 200, fill: '#44403C'}, rec.L[2]);
         S.svg('rect', {x: 1660, y: 860, width: 90, height: 140, fill: '#1F2937', stroke: INK, 'stroke-width': 1.5}, rec.L[2]);
@@ -316,34 +352,80 @@
     dorm(rec, o) {
       const brand = S.Brand.get(o.brands, o.brand || 'northline');
       const bare = o.density === 'bare';
+      // style bible: deep-slate night walls kept READABLE (mid slate, not black), concrete floor, one bare bulb key
       room(rec, Object.assign({
-        wall: '#2A2A32', floor: '#3F3A36', ceiling: '#18181B', wallH: 770, bare: bare, wear: bare ? 0 : 12,
-        windows: [{x: 140, y: 100, w: 340, h: 260, blinds: bare ? 8 : 6}]
+        wall: bare ? '#2A2A32' : '#47535C', floor: bare ? '#3F3A36' : '#6E675E', ceiling: '#1E262D', trim: '#2B333B', wallH: 770, bare: bare, wear: bare ? 0 : 14,
+        windows: [{x: 120, y: 120, w: 300, h: 230, blinds: bare ? 8 : 7}]
       }, o));
-      if (!bare) {
-        bulb(rec.L[1], 860, 120);
-        poster(rec.L[1], 560, 180, 150, 120, brand, o.poster || 'NO WINDOWS', 2);
-        poster(rec.L[1], 560, 330, 130, 90, S.Brand.get(o.brands, 'nightwire'), 'NIGHTWIRE', -3);
-        bunk(rec.L[2], 1460, 1000);
-        plant(rec.L[2], 520, 760, 0.7);
-        crate(rec.L[2], 1540, 1000, 64, 40, brand);
-        powerStrip(rec.L[2], 980, 940);
-        for (let i = 0; i < 3; i++) {
-          S.svg('rect', {x: 700, y: 960 - i * 8, width: 22, height: 18, rx: 2, fill: '#F97316', stroke: INK, 'stroke-width': 1}, rec.L[2]);
-        }
+      const B = rec.L[1], M = rec.L[2], FG = rec.L[4];
+      if (bare) {
+        desk(M, rec.fx, 860, 800, 620, '#44403C');
+        laptop(M, 900, 792, '#042F2E');
+        rec.slots['desk-main'] = {layer: 2, x: 1080, y: 784};
+        rec.slots['foreground'] = {layer: 4, x: 300, y: 1020};
+        return;
       }
-      desk(rec.L[2], bare ? null : rec.fx, 860, 800, 620, '#44403C');
-      const tints = ['#042F2E', '#052E16', '#1E1B4B', '#042F2E', '#0F172A'];
-      const count = bare ? 1 : 5;
-      for (let i = 0; i < count; i++) {
-        laptop(rec.L[2], 900 + i * 100, 792, tints[i]);
-        if (!bare) cable(rec.L[2], 940 + i * 100, 792, 1000 + (i % 3) * 16, 940);
+      // wainscot band + a warm pool on the wall under the bulb
+      S.svg('rect', {x: -400, y: 560, width: 3600, height: 200, fill: '#3B464E'}, B);
+      S.path(B, 'M-400 560 L3200 560', 'none', null, {stroke: '#2B333B', 'stroke-width': 4});
+      const pid = S.uid('pool');
+      const rg = S.svg('radialGradient', {id: pid}, S.ensureDefs());
+      S.svg('stop', {offset: '0', 'stop-color': '#E0B671', 'stop-opacity': 0.42}, rg);
+      S.svg('stop', {offset: '1', 'stop-color': '#E0B671', 'stop-opacity': 0}, rg);
+      S.svg('ellipse', {cx: 960, cy: 260, rx: 620, ry: 320, fill: 'url(#' + pid + ')'}, B);
+      conduit(B, 52);
+      bulb(B, 960, 150);
+      // wall: posters (no readable propaganda), notices, clock, calendar, shelf
+      poster(B, 520, 160, 170, 132, brand, o.poster || 'NO WINDOWS', 2);
+      poster(B, 720, 190, 120, 90, S.Brand.get(o.brands, 'nightwire'), 'NIGHTWIRE', -3);
+      S.svg('rect', {x: 1180, y: 170, width: 230, height: 150, rx: 4, fill: '#B08A5A', stroke: INK, 'stroke-width': 3}, B);   // corkboard
+      [[1196, 186, '#FFF4C2', -4], [1250, 192, '#FFFDF9', 3], [1310, 184, '#C7E8FF', -2], [1206, 250, '#FFD6D6', 2], [1290, 248, '#FFFDF9', -3], [1356, 236, '#FFF4C2', 5]].forEach((n) => {
+        const gg = S.g(B, {transform: 'translate(' + n[0] + ' ' + n[1] + ') rotate(' + n[3] + ')'});
+        S.svg('rect', {x: 0, y: 0, width: 46, height: 52, fill: n[2], stroke: INK, 'stroke-width': 1.6}, gg);
+        for (let k = 0; k < 3; k++) S.path(gg, 'M6 ' + (14 + k * 10) + ' L40 ' + (14 + k * 10), 'none', null, {stroke: '#64748B', 'stroke-width': 1.6});
+        lib(gg, FE('round-pushpin'), 23, 10, 16, {shadow: false, ink: false});
+      });
+      S.path(B, 'M1210 214 L1286 220 L1330 206 L1376 262', 'none', null, {stroke: '#D94A3A', 'stroke-width': 2.2, fill: 'none'});
+      lib(B, FE('spiral-calendar'), 1500, 300, 84, {shadow: false});
+      lib(B, FE('mantelpiece-clock'), 1620, 250, 70, {shadow: false}, () => S.Props.wallClock && S.Props.wallClock(B, {x: 1620, y: 220, scale: 0.6}));
+      shelf(B, 1450, 420, 320, [['books', 64], ['card-file-box', 56], ['package', 52], ['radio', 58], ['battery', 30]]);
+      lib(B, FE('framed-picture'), 470, 470, 74, {shadow: false});
+      // coat hooks with jackets
+      S.path(B, 'M1820 330 L1960 330', 'none', null, {stroke: '#42271C', 'stroke-width': 6});
+      lib(B, FE('coat'), 1850, 450, 90, {shadow: false});
+      lib(B, FE('t-shirt'), 1930, 430, 70, {shadow: false});
+      // back-wall table: a row of laptops (other night-shift seats), tucked chairs, cables down to the floor
+      const ty = 712;
+      S.svg('rect', {x: 300, y: ty - 12, width: 1460, height: 14, fill: '#65432C', stroke: INK, 'stroke-width': 2.4}, M);
+      S.svg('rect', {x: 300, y: ty + 2, width: 1460, height: 40, fill: '#42271C', stroke: INK, 'stroke-width': 2}, M);
+      const tints = ['#0F3D3A', '#11452A', '#1E1B4B', '#0F3D3A', '#102A43', '#11452A', '#0F3D3A'];
+      for (let i = 0; i < 7; i++) {
+        const lx = 340 + i * 200;
+        laptop(M, lx, ty - 12, tints[i]);
+        droop(M, lx + 40, lx + 120, ty + 42, 40);
+        if (i % 2 === 0) lib(M, FE(['hot-beverage', 'canned-food', 'cup-with-straw', 'beverage-box'][(i / 2) % 4]), lx + 110, ty - 12, 34);
       }
-      if (!bare) {
-        monitor(rec.L[2], 1180, 560, 200, 130, '#042F2E');
-        laptop(rec.L[4], 220, 1040, '#022C22');
-      }
-      rec.slots['desk-main'] = {layer: 2, x: 1080, y: 784};
+      monitor(M, 1060, 548, 170, 120, '#0F3D3A');
+      lib(M, FE('desktop-computer'), 860, ty - 12, 92);
+      lib(M, FE('printer'), 1690, ty - 12, 80);
+      // bunk bed, right
+      bunk(M, 1780, 980);
+      lib(M, FE('backpack'), 1760, 980, 70);
+      // floor clutter (mid depth)
+      lib(M, FE('package'), 200, 960, 96);
+      lib(M, FE('package'), 250, 900, 70);
+      lib(M, FE('wastebasket'), 470, 930, 60);
+      lib(M, FE('pizza'), 1500, 950, 62, {rot: -8});
+      lib(M, FE('bento-box'), 1580, 965, 50);
+      lib(M, FE('wilted-flower'), 120, 760, 70);
+      powerStrip(M, 930, 940);
+      droop(M, 940, 700, 948, 30); droop(M, 1000, 1240, 948, 26);
+      for (let i = 0; i < 3; i++) S.svg('rect', {x: 1640 + i * 6, y: 960 - i * 12, width: 26, height: 14, rx: 2, fill: '#F97316', stroke: INK, 'stroke-width': 1.2}, M);
+      // foreground: the back of an empty chair at the left edge (style bible), a cable run, a fan
+      S.path(FG, 'M-20 1100 L-20 840 C-20 800 210 800 210 840 L210 1100 Z', '#2E3440', null, {stroke: INK, 'stroke-width': 5});
+      S.path(FG, 'M10 860 L10 1080', 'none', null, {stroke: '#FFFFFF', 'stroke-width': 4, opacity: 0.1});
+      lib(FG, FE('electric-plug'), 2010, 1060, 80, {rot: -20});
+      rec.slots['desk-main'] = {layer: 2, x: 1300, y: ty - 12};
       rec.slots['foreground'] = {layer: 4, x: 300, y: 1020};
     },
     factory(rec, o) {
@@ -376,16 +458,34 @@
     },
     newsroom(rec, o) {
       const brand = S.Brand.get(o.brands, o.brand || 'nightwire');
-      room(rec, Object.assign({wall: '#1E293B', floor: '#334155', ceiling: '#0F172A', wallH: 770, windows: [{x: 80, y: 140, w: 280, h: 240, blinds: 12}]}, o));
+      room(rec, Object.assign({wall: '#3E5468', floor: '#4A5A6C', ceiling: '#1E293B', wallH: 770, windows: [{x: 80, y: 140, w: 280, h: 240, blinds: 12}]}, o));
       signBand(rec.L[1], 620, 96, 640, o.sign || 'NIGHTWIRE', brand);
       for (let i = 0; i < 3; i++) monitor(rec.L[1], 480 + i * 280, 160, 240, 150, i === 1 ? '#7F1D1D' : '#0F172A');
       const bug = S.svg('text', {x: 760, y: 230, 'font-family': 'Archivo Black, sans-serif', 'font-size': 28, fill: '#F8FAFC'}, rec.L[1]);
       bug.textContent = o.bug || 'LIVE';
       desk(rec.L[2], rec.fx, 520, 820, 820, '#0F172A');
+      S.svg('rect', {x: 520, y: 896, width: 820, height: 200, fill: '#0B1220', stroke: INK, 'stroke-width': 2}, rec.fx);   // modesty panel to the floor
+      S.svg('rect', {x: 540, y: 840, width: 780, height: 40, fill: brand.primary, opacity: 0.9}, rec.fx);
+      const nl = S.svg('text', {x: 930, y: 870, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': 26, fill: brand.trim, 'letter-spacing': 4}, rec.fx);
+      nl.textContent = brand.name;
       if (o.density !== 'bare') {
         papers(rec.L[2], 600, 760, o.rng);
-        plant(rec.L[2], 1500, 760, 1);
-        chair(rec.L[2], 900, 1000);
+        lib(rec.L[2], FE('potted-plant'), 1540, 1000, 120, null, () => plant(rec.L[2], 1500, 760, 1));
+        lib(rec.L[2], FE('desktop-computer'), 640, 804, 90);
+        lib(rec.L[2], FE('hot-beverage'), 1180, 804, 40);
+        lib(rec.L[2], FE('rolled-up-newspaper'), 1260, 804, 60);
+        lib(rec.L[2], FE('studio-microphone'), 900, 804, 60);
+        lib(rec.L[1], FE('world-map'), 200, 600, 180, {shadow: false});
+        lib(rec.L[1], FE('satellite-antenna'), 1700, 420, 110, {shadow: false});
+        lib(rec.L[2], FE('file-cabinet'), 1820, 1000, 150);
+        lib(rec.L[4], FE('video-camera'), 1780, 1080, 200);
+        if (S.Cast && S.Cast.TheSuit && S.Cast.TheSuit.paper && S.Character && o.anchor !== false) {   // the anchor, behind the desk
+          // the anchor stands behind the news desk (the set's own desk front on the FX plane hides below the chest)
+          const a = S.Character.create(S.Cast.TheSuit, {id: 'anchor-' + rec.name, parent: rec.charHost, p: {x: 960, y: 1000, scale: 0.7}});
+          a.p.armRU = -24; a.p.armRL = -34; a.p.armLU = 24; a.p.armLL = 34; a.p.handR = 20; a.p.handL = -20;
+          a.tracks.mood.set(0, 'smirk');
+          rec.chars = rec.chars || []; rec.chars.push(a); rec.extras = (rec.extras || []).concat([a]);
+        }
       }
       S.svg('rect', {x: 240, y: 780, width: 70, height: 40, fill: '#111827', stroke: INK, 'stroke-width': 1.5}, rec.L[4]);
       S.svg('circle', {cx: 310, cy: 800, r: 16, fill: '#0B0B0C', stroke: '#94A3B8', 'stroke-width': 3}, rec.L[4]);
@@ -409,6 +509,7 @@
       if (NAMES.indexOf(name) < 0) throw new Error('unknown set ' + name);
       opts = opts || {};
       const rec = open(stage, name);
+      rec.charHost = opts.charHost || (stage.layers[3] && stage.layers[3].html);
       opts.rng = rngOf(name, opts.seed || 1);
       opts.bare = opts.density === 'bare';
       BUILDERS[name](rec, opts);

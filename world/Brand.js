@@ -66,10 +66,13 @@
     },
     pin(ch, brand) {
       if (!ch || !ch.n || !ch.n.torso || !brand) return null;
+      const b = (ch.cfg && ch.cfg.badge) || [22, -348];
+      const under = ch.n.under || ch.n.noodle && ch.n.noodle.L;
       const g = S.g(ch.n.torso, {id: ch.id + '-badge'});
-      S.svg('circle', {cx: 22, cy: -348, r: 15, fill: brand.primary, stroke: S.INK, 'stroke-width': 2}, g);
-      S.svg('circle', {cx: 22, cy: -348, r: 10, fill: 'none', stroke: brand.accent, 'stroke-width': 2}, g);
-      const t = S.svg('text', {x: 22, y: -344, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': 8, fill: brand.trim}, g);
+      if (under) ch.n.torso.insertBefore(g, under);   // under the arms and the desk top
+      S.svg('circle', {cx: b[0], cy: b[1], r: 15, fill: brand.primary, stroke: S.INK, 'stroke-width': 2}, g);
+      S.svg('circle', {cx: b[0], cy: b[1], r: 10, fill: 'none', stroke: brand.accent, 'stroke-width': 2}, g);
+      const t = S.svg('text', {x: b[0], y: b[1] + 4, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': 8, fill: brand.trim}, g);
       t.textContent = String(brand.short || 'NL').slice(0, 2);
       return g;
     }

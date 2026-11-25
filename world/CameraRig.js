@@ -32,7 +32,7 @@
         punchIn(tl, x, y, zoom, t, dur, opt) {
           opt = opt || {}; cam.beat(t, 'punch');
           tl.to(p, {x, y, zoom: S.clamp(zoom, 1.3, 2.2), duration: dur == null ? 0.22 : dur, ease: opt.ease || 'power4.out'}, t);
-          if (opt.rack !== false) cam.rackFocus(tl, {b0: 6, b1: 4.5, b2: 2.2, b3: 0, b4: 7}, t, dur == null ? 0.22 : dur);
+          if (opt.rack !== false) cam.rackFocus(tl, {b0: 6, b1: 4.5, b2: 0, b3: 0, b4: 7}, t, dur == null ? 0.22 : dur);   // L2 holds behind-desk actors: keep it sharp
         },
         pullOut(tl, t, dur, to) { to = Object.assign({x: 960, y: 540, zoom: 1}, to || {}); cam.beat(t, 'pull');
           tl.to(p, Object.assign({duration: dur || 0.4, ease: 'power3.inOut'}, to), t); cam.rackFocus(tl, {b0: BLUR[0], b1: BLUR[1], b2: 0, b3: 0, b4: BLUR[4]}, t, dur || 0.4); },

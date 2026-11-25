@@ -22,7 +22,7 @@
     legLU: 0, legLL: 0, footL: 0, legRU: 0, legRL: 0, footR: 0,
     browL: 0, browR: 0, browInner: 0, browTiltL: 0, browTiltR: 0,
     lidL: 0.12, lidR: 0.12, lidBL: 0, lidBR: 0, pupil: 1, lookX: 0, lookY: 0,
-    glint: -1, blush: 0.35
+    glint: -1, blush: 0.35, glassesY: 0
   };
   S.CHAR_PARAMS = Object.keys(PARAMS);
 
@@ -42,7 +42,7 @@
       opts = opts || {};
       const id = opts.id || cfg.name.toLowerCase();
       const J = cfg.joints;
-      const wrap = S.div({class: 'ss-char', id: id + '-wrap', style: {position: 'absolute', left: '0px', top: '0px', width: '0px', height: '0px', transformOrigin: '0 0', zIndex: opts.z || 1}}, opts.parent);
+      const wrap = S.div({class: 'ss-char', 'data-layout-ignore': '', id: id + '-wrap', style: {position: 'absolute', left: '0px', top: '0px', width: '0px', height: '0px', transformOrigin: '0 0', zIndex: opts.z || 1}}, opts.parent);
       const V = cfg.view || [-220, -760, 440, 800];
       const svg = S.svg('svg', {viewBox: V.join(' '), width: V[2], height: V[3], overflow: 'visible',
         style: `position:absolute;left:${V[0]}px;top:${V[1]}px;overflow:visible`}, wrap);
@@ -61,20 +61,28 @@
         const ft = G(lo, `foot-${s}`); const fi = S.g(ft, {transform: `translate(${J['ankle' + s][0]} ${J['ankle' + s][1]})`}); cfg.draw.foot(fi, s, ctx);
       });
       const torso = G(pelvis, 'torso');
+      const paper = !!cfg.paper;
+      const drawHand = cfg.drawHand || S.drawHand;
+      const handPoses = cfg.handPoses || S.HAND_POSES;
       const arm = (s) => {
         const up = G(torso, `arm-${s}-upper`); cfg.draw.armUpper(up, s, ctx);
         const lo = G(up, `arm-${s}-lower`); cfg.draw.armLower(lo, s, ctx);
         const hd = G(lo, `hand-${s}`);
         const hi = S.g(hd, {transform: `translate(${J['wrist' + s][0]} ${J['wrist' + s][1]}) scale(${cfg.handScale || 1})`});
         n['poses' + s] = {};
-        S.HAND_POSES.forEach((pose) => {
-          const pg = S.drawHand(hi, pose, {skin: cfg.skin, shade: cfg.skinShade, mirror: s === 'L', defs, k: 1 / (cfg.handScale || 1)});
+        // paper hands: held props mount BEHIND the fingers (the grip wraps the prop); legacy hands keep it on top
+        const m = cfg.handMount || S.handMount('grip-prop');
+        if (paper) n['mount' + s] = S.g(hi, {id: `${id}-prop-mount-${s}`, transform: `translate(${s === 'L' ? -m[0] : m[0]} ${m[1]})`});
+        handPoses.forEach((pose) => {
+          const pg = drawHand(hi, pose, {skin: cfg.skin, shade: cfg.skinShade, mirror: s === 'L', defs, k: 1 / (cfg.handScale || 1), ink: cfg.ink});
           pg.setAttribute('display', 'none'); n['poses' + s][pose] = pg;
         });
-        const m = S.handMount('grip-prop');
-        n['mount' + s] = S.g(hi, {id: `${id}-prop-mount-${s}`, transform: `translate(${s === 'L' ? -m[0] : m[0]} ${m[1]})`});
+        if (!paper) n['mount' + s] = S.g(hi, {id: `${id}-prop-mount-${s}`, transform: `translate(${s === 'L' ? -m[0] : m[0]} ${m[1]})`});
       };
-      arm('L');
+      // chair backs and anything a seated figure leans against: behind the whole body
+      n.behind = S.g(root, {id: `${id}-behind`});
+      root.insertBefore(n.behind, pelvis);
+      if (!paper) arm('L');
       cfg.draw.torso(torso, ctx);
       const neck = G(torso, 'neck'); cfg.draw.neck(neck, ctx);
       const head = G(neck, 'head-pivot');
@@ -85,6 +93,7 @@
       n.ear = {};
       ['L', 'R'].forEach((s) => {
         const e = n.ear[s] = S.g(ears, {id: `${id}-ear-${s}`});
+        if (!cfg.ear) return;   // paper heads have no ears
         const eg = S.g(e, {transform: s === 'L' ? 'scale(-1 1)' : null});
         ctx.crescent(eg, cfg.ear.d, cfg.skin, cfg.skinShade, 4, 2);
         S.line(eg, cfg.ear.helix, 'micro'); S.line(eg, cfg.ear.inner, 'micro', null, {opacity: 0.7});
@@ -92,20 +101,22 @@
       const base = G(head, 'face-base');
       const headClip = S.uid('head');
       S.path(S.svg('clipPath', {id: headClip}, defs), cfg.head.d);
-      ctx.crescent(base, cfg.head.d, cfg.skin, cfg.skinShade, cfg.head.shadeDX || 9, cfg.head.shadeDY || 5, false);
+      if (paper) S.path(base, cfg.head.d, cfg.skin);   // flat skin; head.extras adds the sheen
+      else ctx.crescent(base, cfg.head.d, cfg.skin, cfg.skinShade, cfg.head.shadeDX || 9, cfg.head.shadeDY || 5, false);
       const baseClip = S.g(base, {'clip-path': `url(#${headClip})`});
       if (cfg.head.extras) cfg.head.extras(baseClip, ctx);
       // forehead cast shadow under the bangs
-      S.path(baseClip, cfg.hair.front, cfg.skinShade, null, {transform: 'translate(3 8)', opacity: 0.85});
+      S.path(baseClip, cfg.hair.front, cfg.skinShade, null, {transform: 'translate(3 8)', opacity: paper ? 0.3 : 0.85});
       const fclip = G(head, 'face-clip-group', {'clip-path': `url(#${headClip})`});
       const feat = G(fclip, 'face-features');
       const F = cfg.face;
       // cheeks
       n.cheeks = S.g(feat, {opacity: 0.35});
-      [-1, 1].forEach((k) => S.svg('ellipse', {cx: k * F.cheekDX, cy: F.cheekY, rx: 10, ry: 5.5, fill: S.PALETTE.blush}, n.cheeks));
+      if (!cfg.noBlush) [-1, 1].forEach((k) => S.svg('ellipse', {cx: k * F.cheekDX, cy: F.cheekY, rx: 10, ry: 5.5, fill: S.PALETTE.blush}, n.cheeks));
       // eyes
       n.eye = {};
-      ['L', 'R'].forEach((s) => {
+      if (paper) S.paperEyes(n, feat, defs, cfg, id);
+      else ['L', 'R'].forEach((s) => {
         const k = s === 'L' ? -1 : 1, cx = k * F.eyeDX, cy = F.eyeY, rx = F.eyeRX, ry = F.eyeRY;
         const eg = S.g(feat, {id: `${id}-eye-${s}`});
         const cid = S.uid('eye');
@@ -133,7 +144,13 @@
       });
       // brows
       n.brow = {};
-      ['L', 'R'].forEach((s) => {
+      if (paper) ['L', 'R'].forEach((s) => {   // thin calm arcs: the brows carry the acting
+        const k = s === 'L' ? -1 : 1; const bg = S.g(feat, {id: `${id}-brow-${s}`});
+        const ix = k * F.browDX, ox = k * (F.browDX + F.browLen), y = F.browY;
+        S.path(bg, `M${ix} ${y + 1} Q${(ix + ox) / 2} ${y - F.browArch - 2} ${ox} ${y + 1.5}`, 'none', null, {stroke: F.browColor || S.INK, 'stroke-width': F.browW, 'stroke-linecap': 'round', fill: 'none'});
+        n.brow[s] = {g: bg, cx: (ix + ox) / 2, cy: y};
+      });
+      else ['L', 'R'].forEach((s) => {
         const k = s === 'L' ? -1 : 1; const bg = S.g(feat, {id: `${id}-brow-${s}`});
         const ix = k * F.browDX, ox = k * (F.browDX + F.browLen), y = F.browY, w = F.browW;
         const d = `M${ix} ${y + w * 0.5} C${ix + k * F.browLen * 0.35} ${y - w * 0.9 - F.browArch} ${ox - k * F.browLen * 0.25} ${y - w * 0.7 - F.browArch} ${ox} ${y + 1} ` +
@@ -144,7 +161,7 @@
       // nose
       n.nose = S.g(feat);
       if (F.noseShadow) S.path(n.nose, F.noseShadow, cfg.skinShade, null, {opacity: 0.9});
-      S.line(n.nose, F.nose, 'mid');
+      if (F.nose) S.line(n.nose, F.nose, 'mid');
       if (F.noseMicro) S.line(n.nose, F.noseMicro, 'micro', null, {opacity: 0.7});
       // mouth
       n.mouth = S.g(feat, {id: `${id}-mouth-rig`});
@@ -155,14 +172,16 @@
       n.sweat = S.g(feat, {display: 'none'});
       S.path(n.sweat, `M${F.eyeDX + 30} ${F.browY - 6} C${F.eyeDX + 24} ${F.browY + 6} ${F.eyeDX + 26} ${F.browY + 14} ${F.eyeDX + 31} ${F.browY + 14} C${F.eyeDX + 36} ${F.browY + 14} ${F.eyeDX + 37} ${F.browY + 6} ${F.eyeDX + 30} ${F.browY - 6} Z`, '#BAE6FD', 'micro');
       // head outline on top of features
-      n.headLine = G(head, 'head-line'); S.path(n.headLine, cfg.head.d, 'none', 'outer');
+      n.headLine = G(head, 'head-line'); S.path(n.headLine, cfg.head.d, 'none', paper ? (cfg.ink || 4.2) : 'outer');
       if (cfg.head.lines) cfg.head.lines.forEach((d) => S.line(n.headLine, d, 'micro', null, {opacity: 0.8}));
       n.hairMain = G(head, 'hair-main');
-      ctx.crescent(n.hairMain, cfg.hair.main, cfg.hair.color, cfg.hair.shade, 6, 4);
+      if (paper) S.path(n.hairMain, cfg.hair.main, cfg.hair.color, cfg.ink || 4.2, {'stroke-linejoin': 'round'});
+      else ctx.crescent(n.hairMain, cfg.hair.main, cfg.hair.color, cfg.hair.shade, 6, 4);
       (cfg.hair.strands || []).forEach((d) => S.line(n.hairMain, d, 'micro', cfg.hair.strandColor || null, {opacity: 0.85}));
       n.hairFront = G(head, 'hair-front');
       // bangs: tips get a structure line, the edge that meets hair-main only a faint micro line (no 'headband' contour)
-      ctx.crescent(n.hairFront, cfg.hair.front, cfg.hair.color, cfg.hair.shade, 4, 3, cfg.hair.frontTips ? false : 'outer');
+      if (paper) S.path(n.hairFront, cfg.hair.front, cfg.hair.color, cfg.ink || 4.2, {'stroke-linejoin': 'round'});
+      else ctx.crescent(n.hairFront, cfg.hair.front, cfg.hair.color, cfg.hair.shade, 4, 3, cfg.hair.frontTips ? false : 'outer');
       if (cfg.hair.frontTips) { S.line(n.hairFront, cfg.hair.frontTips, null, S.INK, {'stroke-width': 2.8}); S.line(n.hairFront, cfg.hair.frontTop, 'micro', null, {opacity: 0.45}); }
       (cfg.hair.frontStrands || []).forEach((d) => S.line(n.hairFront, d, 'micro', cfg.hair.strandColor || null, {opacity: 0.85}));
       if (cfg.hair.curl) { S.line(n.hairFront, cfg.hair.curl, null, S.INK, {'stroke-width': 7.5}); S.line(n.hairFront, cfg.hair.curl, null, cfg.hair.color, {'stroke-width': 3.2}); }
@@ -197,15 +216,28 @@
       // swappable accessories / disguises (cap, mustache, fake glasses...), toggled by tracks.acc (array of names)
       n.acc = {};
       for (const name in (cfg.accessories || {})) { const ag = S.g(head, {id: `${id}-acc-${name}`, display: 'none'}); cfg.accessories[name](ag, ctx); n.acc[name] = ag; }
+      if (paper) {
+        // what the hands rest ON (desk top, keyboard) sits between the body and the arms; apply() counter-transforms
+        // this group so it stays planted in the ground frame while the torso breathes and leans
+        n.under = S.g(torso, {id: `${id}-under`});
+        n.noodle = {};
+        ['L', 'R'].forEach((s) => {
+          n.noodle[s] = S.svg('path', {d: 'M0 0', fill: 'none', stroke: cfg.limbInk || S.INK, 'stroke-width': cfg.armW || 8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', id: `${id}-noodle-${s}`}, torso);
+        });
+        arm('L');
+      }
       arm('R');
       ['L', 'R'].forEach((s) => { if (cfg.draw['mount' + s]) cfg.draw['mount' + s](n['mount' + s], ctx); });
+      if (cfg.heldProps) { n.heldProps = {}; for (const k in cfg.heldProps) { const hg = S.g(n.mountR, {display: 'none'}); cfg.heldProps[k](hg, ctx); n.heldProps[k] = hg; } }
+      // in front of the whole figure (desk fronts that hide seated legs), character-local ground frame
+      n.front = S.g(svg, {id: `${id}-front`});
       if (cfg.draw.overArm) cfg.draw.overArm(torso, ctx);
 
       // ---- state ----
       const p = Object.assign({}, PARAMS, cfg.rest || {}, opts.frozen ? {breathe: 0} : {}, opts.p || {});
       const tracks = {viseme: new S.Track(null), mood: new S.Track('REST'), handL: new S.Track(cfg.restHand || 'relaxed'),
         handR: new S.Track(cfg.restHandR || cfg.restHand || 'relaxed'), dollar: new S.Track(false), sweat: new S.Track(false),
-        acc: new S.Track(cfg.restAcc || [])};
+        acc: new S.Track(cfg.restAcc || []), held: new S.Track(null)};
       if (cfg.restHandL) tracks.handL = new S.Track(cfg.restHandL);
       if (cfg.restMood) tracks.mood = new S.Track(cfg.restMood);
       const rnd = S.rng(S.hash(id + ':blink'));
@@ -260,7 +292,18 @@
           n[`foot-${s}`].setAttribute('transform', rot(p['foot' + s], J['ankle' + s]));
         });
         const br = Math.sin(t * Math.PI * 2 / 3.4) * p.breathe;
-        n.torso.setAttribute('transform', `${rot(p.torso + br * 0.35, J.pelvis)} translate(0 ${J.pelvis[1]}) scale(1 ${(1 + br * 0.006).toFixed(4)}) translate(0 ${-J.pelvis[1]})`);
+        const torsoA = p.torso + br * 0.35, torsoS = 1 + br * 0.006;
+        n.torso.setAttribute('transform', `${rot(torsoA, J.pelvis)} translate(0 ${J.pelvis[1]}) scale(1 ${torsoS.toFixed(4)}) translate(0 ${-J.pelvis[1]})`);
+        if (n.under) {   // undo root (lean, facing, squash), pelvis and torso so the desk top stays planted
+          const pv = J.pelvis, m = new DOMMatrix()
+            .rotateSelf(0, 0, p.lean).scaleSelf(facing * sx, sy)
+            .translateSelf(0, p.pelvisY + g0)
+            .translateSelf(pv[0], pv[1]).rotateSelf(0, 0, torsoA).translateSelf(-pv[0], -pv[1])
+            .translateSelf(0, pv[1]).scaleSelf(1, torsoS).translateSelf(0, -pv[1]).invertSelf();
+          n.under.setAttribute('transform', `matrix(${m.a.toFixed(5)} ${m.b.toFixed(5)} ${m.c.toFixed(5)} ${m.d.toFixed(5)} ${m.e.toFixed(3)} ${m.f.toFixed(3)})`);
+          const mb = new DOMMatrix().rotateSelf(0, 0, p.lean).scaleSelf(facing * sx, sy).invertSelf();
+          n.behind.setAttribute('transform', `matrix(${mb.a.toFixed(5)} ${mb.b.toFixed(5)} ${mb.c.toFixed(5)} ${mb.d.toFixed(5)} ${mb.e.toFixed(3)} ${mb.f.toFixed(3)})`);
+        }
         ['L', 'R'].forEach((s) => {
           const k = s === 'L' ? 1 : -1;
           n[`arm-${s}-upper`].setAttribute('transform', rot(p['arm' + s + 'U'] + k * br * 0.8, J['shoulder' + s]));
@@ -268,7 +311,16 @@
           n[`hand-${s}`].setAttribute('transform', rot(p['hand' + s], J['wrist' + s]));
           const pose = tracks['hand' + s].at(t);
           for (const k2 in n['poses' + s]) n['poses' + s][k2].setAttribute('display', k2 === pose ? 'inline' : 'none');
+          if (n.noodle) {   // one smooth ink curve shoulder > elbow > wrist (rig8 noodle arm), from the live FK chain
+            const sh = J['shoulder' + s], el = J['elbow' + s], wr = J['wrist' + s];
+            const a1 = R(p['arm' + s + 'U'] + k * br * 0.8), a2 = R(p['arm' + s + 'L']);
+            const rp = (q, c, a) => [c[0] + (q[0] - c[0]) * Math.cos(a) - (q[1] - c[1]) * Math.sin(a), c[1] + (q[0] - c[0]) * Math.sin(a) + (q[1] - c[1]) * Math.cos(a)];
+            const E = rp(el, sh, a1), W = rp(rp(wr, el, a2), sh, a1);
+            const cx = 2 * E[0] - (sh[0] + W[0]) / 2, cy = 2 * E[1] - (sh[1] + W[1]) / 2;
+            n.noodle[s].setAttribute('d', `M${sh[0].toFixed(1)} ${(sh[1] + 4).toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${W[0].toFixed(1)} ${W[1].toFixed(1)}`);
+          }
         });
+        if (n.heldProps) { const held = tracks.held.at(t); for (const k2 in n.heldProps) n.heldProps[k2].setAttribute('display', k2 === held ? 'inline' : 'none'); }
         n.neck.setAttribute('transform', rot(p.neck, J.neck));
         // viseme / mood mouth + jaw
         const vis = tracks.viseme.at(t); const mood = tracks.mood.at(t);
@@ -293,7 +345,7 @@
         n.hairMain.setAttribute('transform', `translate(${(tn * 3).toFixed(2)} ${(p.hairBounce * 0.3).toFixed(2)})`);
         n.hairFront.setAttribute('transform', `translate(${(tn * 8).toFixed(2)} ${p.hairBounce.toFixed(2)}) ${rot(p.hairLag, crown)}`);
         n.hairSheen.setAttribute('transform', `translate(${(tn * 5).toFixed(2)} ${(p.hairBounce * 0.4).toFixed(2)})`);
-        if (n.glasses) n.glasses.setAttribute('transform', `translate(${(tn * 16).toFixed(2)} 0)`);
+        if (n.glasses) n.glasses.setAttribute('transform', `translate(${(tn * 16).toFixed(2)} ${p.glassesY.toFixed(2)})`);
         if (n.glint) n.glint.forEach((g) => g.g.setAttribute('transform', `translate(${(p.glint * 40).toFixed(2)} 0)`));
         // brows
         ['L', 'R'].forEach((s) => {
@@ -307,8 +359,10 @@
           const e = n.eye[s]; const lid = Math.max(s === 'L' ? p.lidL : p.lidR, bl); const lidB = s === 'L' ? p.lidBL : p.lidBR;
           e.lid.setAttribute('transform', `translate(0 ${(lid * e.ry * 2.6).toFixed(2)})`);
           e.lidB.setAttribute('transform', `translate(0 ${(-lidB * e.ry * 2.4).toFixed(2)})`);
-          const lx = S.clamp(p.lookX + sc[0], -1.2, 1.2) * e.rx * 0.42, ly = S.clamp(p.lookY + sc[1], -1, 1) * e.ry * 0.35;
-          e.iris.setAttribute('transform', `translate(${(lx + e.cx).toFixed(2)} ${(ly + e.cy).toFixed(2)}) scale(${p.pupil.toFixed(3)}) translate(${-e.cx} ${-e.cy})`);
+          const lk = paper ? 0.55 : 1;
+          const lx = S.clamp(p.lookX + sc[0], -1.2, 1.2) * e.rx * 0.42 * lk, ly = S.clamp(p.lookY + sc[1], -1, 1) * e.ry * 0.35 * lk;
+          const ps = paper ? S.clamp(2 - p.pupil, 0.82, 1.32) : p.pupil;   // paper: a shock widens the oval
+          e.iris.setAttribute('transform', `translate(${(lx + e.cx).toFixed(2)} ${(ly + e.cy).toFixed(2)}) scale(${ps.toFixed(3)}) translate(${-e.cx} ${-e.cy})`);
           e.iris.setAttribute('display', dollar ? 'none' : 'inline');
           e.dollar.setAttribute('display', dollar ? 'inline' : 'none');
         });
