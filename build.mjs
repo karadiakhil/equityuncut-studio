@@ -7,8 +7,9 @@ import {fileURLToPath} from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const P = (...a) => path.join(here, ...a);
 const ORDER = ['lib/core.js', 'lib/asset-normalizer.js', 'library/props/icons.generated.js', 'library/textures/textures.js',
-  'library/props/props.js', 'library/mograph/mograph.js', 'cast/hand-poses.js', 'cast/lipsync.js', 'cast/CharacterRig.js',
-  'cast/characters.js', 'cast/characters2.js', 'actions/choreography.js', 'world/StageEngine.js', 'world/CameraRig.js'];
+  'library/props/props.js', 'library/mograph/mograph.js', 'library/mograph/kit.js', 'cast/hand-poses.js', 'cast/lipsync.js', 'cast/CharacterRig.js',
+  'cast/characters.js', 'cast/characters2.js', 'actions/choreography.js', 'actions/acting.js', 'world/StageEngine.js', 'world/CameraRig.js',
+  'world/Lighting.js', 'world/Brand.js', 'world/WorldKit.js', 'world/SetLibrary.js', 'world/SceneSpec.js'];
 // icon subset (fluent-emoji-flat, MIT) -> library/props/icons.generated.js
 const ICONS = ['potted-plant', 'luggage', 'airplane', 'small-airplane', 'money-bag', 'laptop', 'briefcase', 'globe-showing-americas',
   'telephone', 'office-building', 'cityscape', 'ledger', 'mobile-phone', 'dollar-banknote', 'newspaper', 'classical-building', 'bank',

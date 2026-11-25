@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Scene spec</title>
+<link rel="stylesheet" href="../../dist/fonts.css"/>
+<style>
+  html, body { margin: 0; background: #000; }
+  #root { width: 1920px; height: 1080px; overflow: hidden; position: relative; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="../../dist/vendor/gsap.min.js"></script>
+<script src="../../dist/vendor/rough.js"></script>
+<script src="../../dist/studio.js"></script>
+<script src="scene_spec.js"></script>
+<script>
+(function () {
+  var root = document.getElementById('root');
+  window.__ready = document.fonts.ready.then(function () {
+    var spec = window.__SPEC_OVERRIDE || window.SCENE_SPEC;
+    if (!spec) throw new Error('no scene spec');
+    window.__scene = Studio.Scene.render(root, spec);
+  }).catch(function (e) {
+    window.__sceneError = String(e && e.stack || e);
+    console.error(window.__sceneError);
+    throw e;
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "id": "before-dorm",
+  "title": "Legacy flat dorm",
+  "duration": 1,
+  "fps": 24,
+  "size": [1920, 1080],
+  "seed": 7,
+  "brands": [
+    {"id": "northline", "name": "NORTHLINE", "short": "NL", "tag": "SYSTEMS", "primary": "#0B1F33", "accent": "#F5C542", "trim": "#E8EEF5"}
+  ],
+  "setParams": {"dorm": {"density": "bare", "brand": "northline", "wall": "#F3E6D0", "floor": "#E9DFCC", "ceiling": "#E7E5E4"}},
+  "shots": [
+    {"t": 0, "dur": 1, "set": "dorm", "lighting": "flat", "time": "day", "weather": "clear", "camera": {"x": 1100, "y": 660, "zoom": 1.08}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "dorm", "x": 1160, "scale": 0.84, "keys": [{"t": 0.05, "expression": "neutral", "gesture": "idle", "ease": "settle"}]}
+  ]
+}

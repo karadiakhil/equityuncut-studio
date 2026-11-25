@@ -1,9 +1,11 @@
 {
   "name": "shared-studio",
   "version": "1.0.0",
-  "description": "",
+  "description": "Equity Uncut shared-studio animation engine",
   "main": "index.js",
   "scripts": {
+    "build": "node build.mjs",
+    "render:demo": "node tools/render-spec.mjs demos/nk-dorm-fbi/scene_spec.json --out renders/nk-dorm-fbi",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
