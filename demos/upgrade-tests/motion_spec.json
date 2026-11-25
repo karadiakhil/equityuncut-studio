@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "id": "motion",
+  "duration": 3.4,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 11,
+  "stills": [0.5, 1.6, 2.8],
+  "shots": [
+    {"t": 0, "dur": 3.4, "set": "paper", "lighting": "paper-day", "time": "day", "weather": "clear",
+      "camera": {"preset": "push", "x": 700, "y": 680, "zoom": 1.02}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "paper", "x": 360, "view": "P", "scale": 0.92, "workstation": false,
+      "keys": [
+        {"t": 0.1, "view": "P", "walk": {"from": 360, "to": 980, "dur": 1.5}},
+        {"t": 1.7, "view": "F", "gesture": "explain", "expression": "neutral", "ease": "snap"},
+        {"t": 2.5, "gesture": "point", "expression": "angry", "ease": "snap", "say": {"text": "We paid it.", "dur": 0.8}}
+      ]}
+  ]
+}

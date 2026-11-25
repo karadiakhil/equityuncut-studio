@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "id": "t1-transitions",
+  "duration": 6,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 8,
+  "stills": [0.4, 1.55, 3.05, 4.55],
+  "shots": [
+    {"t": 0, "dur": 1.5, "set": "paper", "lighting": "paper-day", "time": "day", "weather": "clear", "camera": {"x": 800, "y": 680, "zoom": 1, "preset": "static"}},
+    {"t": 1.5, "dur": 1.5, "set": "paper", "lighting": "paper-day", "time": "day", "weather": "clear", "transition": "whip", "camera": {"x": 1100, "y": 660, "zoom": 1.08, "preset": "static"}},
+    {"t": 3, "dur": 1.5, "set": "evidence-table", "lighting": "paper-warm", "time": "day", "weather": "clear", "transition": "paper", "camera": {"x": 960, "y": 640, "zoom": 1, "preset": "static"}},
+    {"t": 4.5, "dur": 1.5, "set": "debate-split", "lighting": "paper-night", "time": "night", "weather": "clear", "transition": "blackcard", "camera": {"x": 960, "y": 600, "zoom": 1, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "paper", "x": 800, "scale": 0.85, "workstation": false}
+  ]
+}

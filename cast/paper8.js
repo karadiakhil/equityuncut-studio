@@ -135,8 +135,11 @@
       S.svg('ellipse', {cx, cy, rx: rx + 5, ry: ry + 5}, S.svg('clipPath', {id: cid}, defs));
       const inner = S.g(eg, {'clip-path': `url(#${cid})`});
       const iris = S.g(inner);
-      S.svg('ellipse', {cx, cy, rx, ry, fill: F.eyeColor || '#19161B'}, iris);
-      if (!F.matte) S.svg('ellipse', {cx: cx - rx * 0.3, cy: cy - ry * 0.4, rx: rx * 0.32, ry: ry * 0.27, fill: '#FFFFFF', opacity: 0.95, 'data-gloss': '1'}, iris);
+      if (F.eyes === 'dot') S.svg('circle', {cx, cy, r: Math.max(3.2, Math.min(rx, ry) * 0.55), fill: F.eyeColor || '#19161B'}, iris);
+      else {
+        S.svg('ellipse', {cx, cy, rx, ry, fill: F.eyeColor || '#19161B'}, iris);
+        if (!F.matte) S.svg('ellipse', {cx: cx - rx * 0.3, cy: cy - ry * 0.4, rx: rx * 0.32, ry: ry * 0.27, fill: '#FFFFFF', opacity: 0.95, 'data-gloss': '1'}, iris);
+      }
       const dollar = S.svg('text', {x: cx, y: cy + ry * 0.7, 'text-anchor': 'middle', 'font-family': 'Archivo Black, sans-serif', 'font-size': ry * 2.2, fill: S.PALETTE.emeraldDeep, display: 'none'}, inner);
       dollar.textContent = '$';
       const top = cy - ry - 6;
@@ -168,6 +171,48 @@
       main: 'M-66,2 C-72,-48 -42,-78 2,-80 C46,-80 72,-50 68,2 C64,-22 56,-36 42,-44 C22,-54 -2,-52 -18,-46 L-14,-60 C-34,-54 -54,-30 -66,2 Z',
       strands: ['M-14,-60 Q16,-74 50,-56', 'M-40,-58 Q-52,-40 -58,-18'],
       band: 'M-4,-72 Q26,-80 52,-62'
+    },
+    curly: {    // dark cloud of loops; likeness is the silhouette, not a copied face
+      back: 'M-82,8 C-100,-36 -70,-104 -4,-108 C64,-106 102,-40 80,10 C48,28 -48,28 -82,8 Z',
+      main: 'M-74,2 C-90,-24 -84,-64 -58,-84 C-70,-102 -30,-114 -4,-100 C24,-116 70,-104 78,-74 C96,-44 90,-8 70,6 C46,-16 16,-28 -8,-22 C-36,-32 -58,-14 -74,2 Z',
+      strands: ['M-48,-72 Q-24,-96 4,-84', 'M8,-92 Q36,-108 62,-78', 'M-58,-36 Q-34,-58 -12,-46', 'M-8,-48 Q16,-70 40,-52'],
+      band: 'M-40,-82 Q2,-102 46,-80'
+    },
+    bun: {
+      back: 'M-70,6 C-78,-50 -40,-86 2,-86 C44,-86 78,-50 70,6 C44,-4 -44,-4 -70,6 Z',
+      main: 'M-60,0 C-66,-40 -36,-70 2,-72 C40,-70 66,-40 60,0 C40,-16 -40,-16 -60,0 Z',
+      strands: ['M-20,-70 Q0,-96 22,-70', 'M-4,-96 Q0,-112 8,-96'],
+      band: 'M-16,-78 Q0,-90 18,-78'
+    },
+    bob: {
+      back: 'M-76,28 C-90,-40 -48,-96 2,-98 C52,-96 90,-40 76,28 C40,8 -40,8 -76,28 Z',
+      main: 'M-70,16 C-80,-30 -50,-78 0,-82 C50,-78 80,-30 70,16 C40,-8 -40,-8 -70,16 Z',
+      strands: ['M-40,-60 Q0,-78 40,-60', 'M-60,0 Q-40,-20 -20,-8'],
+      band: 'M-30,-70 Q0,-86 30,-70'
+    },
+    bald: {
+      back: 'M-20,8 C-24,-4 -8,-10 0,-10 C8,-10 24,-4 20,8 Z',
+      main: 'M-8,-2 C-10,-8 10,-8 8,-2 Z',
+      strands: ['M-6,-6 L6,-6'],
+      band: 'M-4,-4 L4,-4'
+    },
+    buzz: {
+      back: 'M-64,4 C-70,-40 -36,-70 2,-70 C40,-70 70,-40 64,4 C40,-6 -40,-6 -64,4 Z',
+      main: 'M-58,0 C-62,-36 -30,-62 2,-62 C34,-62 62,-36 58,0 C30,-10 -30,-10 -58,0 Z',
+      strands: ['M-30,-48 Q0,-58 30,-48'],
+      band: 'M-20,-52 Q0,-60 20,-52'
+    },
+    long: {
+      back: 'M-74,40 C-88,-30 -46,-100 2,-102 C50,-100 88,-30 74,40 C30,8 -30,8 -74,40 Z',
+      main: 'M-66,20 C-76,-28 -40,-80 2,-84 C44,-80 76,-28 66,20 C36,-4 -36,-4 -66,20 Z',
+      strands: ['M-36,-64 Q0,-84 36,-64', 'M-50,10 Q-30,-10 -16,16'],
+      band: 'M-24,-74 Q0,-90 24,-74'
+    },
+    ponytail: {
+      back: 'M-68,6 C-76,-52 -36,-88 4,-88 C44,-88 76,-52 68,6 C40,-4 -40,-4 -68,6 Z',
+      main: 'M-60,0 C-66,-44 -28,-74 4,-76 C36,-74 66,-44 60,0 C34,-16 -34,-16 -60,0 Z',
+      strands: ['M20,-70 Q48,-60 36,-20', 'M28,-20 Q34,10 24,28'],
+      band: 'M8,-78 Q28,-70 24,-40'
     },
     slick: {    // slicked back with a quiff
       back: 'M-70,6 C-78,-56 -40,-88 4,-88 C48,-88 78,-56 70,6 C44,-6 -44,-6 -70,6 Z',
@@ -284,8 +329,49 @@
       S.svg('rect', {x: -12, y: -218, width: 24, height: 24, rx: 3, fill: 'none', stroke: '#C9A25E', 'stroke-width': 3.4}, g);
       [[-22, -272], [22, -272], [-22, -244], [22, -244]].forEach(([x, y]) => S.svg('circle', {cx: x, cy: y, r: 3.6, fill: o.top2, stroke: INK, 'stroke-width': 1.6}, g));
       S.path(g, 'M0,-196 L0,-100', 'none', null, {stroke: INK, 'stroke-width': 2, opacity: 0.6});
+    },
+    sweater(g, o) {
+      S.path(g, 'M-26,-396 L0,-348 L26,-396 Z', o.shirt || '#F7F4EE', null, {stroke: INK, 'stroke-width': 2.2, 'stroke-linejoin': 'round'});
+      S.path(g, 'M-64,-390 C-36,-358 36,-358 64,-390', 'none', null, {stroke: o.trim || o.top2 || '#C8302C', 'stroke-width': 9, 'stroke-linecap': 'round', fill: 'none'});
+      for (let y = -350; y <= -170; y += 16) S.path(g, `M-86,${y} L86,${y}`, 'none', null, {stroke: '#5E646C', 'stroke-width': 1.6, opacity: 0.55});
+      S.path(g, 'M-86,-230 L-62,-230', 'none', null, {stroke: o.trim || o.top2 || '#C8302C', 'stroke-width': 8, 'stroke-linecap': 'round'});
+      S.path(g, 'M62,-230 L86,-230', 'none', null, {stroke: o.trim || o.top2 || '#C8302C', 'stroke-width': 8, 'stroke-linecap': 'round'});
+    },
+    tee(g, o) {
+      S.path(g, 'M-22,-392 L0,-360 L22,-392 Z', o.shirt || '#F7F4EE', null, {stroke: INK, 'stroke-width': 2.2});
+    },
+    polo(g, o) {
+      S.path(g, 'M-24,-394 L0,-350 L24,-394 Z', o.shirt || '#F7F4EE', null, {stroke: INK, 'stroke-width': 2.2});
+      S.path(g, 'M-8,-370 L8,-370 L6,-340 L-6,-340 Z', o.trim || o.top2 || '#1E2A44', null, {stroke: INK, 'stroke-width': 2});
+    },
+    blazer(g, o) { OUTFIT.suit(g, o); },
+    apron(g, o) {
+      S.path(g, 'M-40,-300 L40,-300 L46,-150 L-46,-150 Z', o.shirt || '#F4EEDC', null, {stroke: INK, 'stroke-width': 2.4});
+      S.path(g, 'M-18,-392 L-8,-300 M18,-392 L8,-300', 'none', null, {stroke: INK, 'stroke-width': 2.4});
+    },
+    labcoat(g, o) {
+      S.path(g, 'M-70,-360 L-78,-160 L-20,-160 L-16,-300 L16,-300 L20,-160 L78,-160 L70,-360 Z', '#F7F4EE', null, {stroke: INK, 'stroke-width': 2.4, 'stroke-linejoin': 'round'});
+    },
+    dress(g, o) {
+      S.path(g, 'M-30,-390 L0,-330 L30,-390 Z', o.shirt || o.top, null, {stroke: INK, 'stroke-width': 2.2});
+    },
+    vest(g, o) {
+      S.path(g, 'M-36,-370 L-8,-250 L8,-250 L36,-370 Z', o.trim || '#1E2A44', null, {stroke: INK, 'stroke-width': 2.2, opacity: 0.95});
     }
   };
+  function drawPattern(g, ctx, o) {
+    const id = S.uid('pat');
+    const pat = S.svg('pattern', {id, width: 18, height: 18, patternUnits: 'userSpaceOnUse'}, ctx.defs);
+    const col = o.patternColor || '#1A1A1E';
+    if (o.pattern === 'stripe') S.svg('line', {x1: 0, y1: 0, x2: 0, y2: 18, stroke: col, 'stroke-width': 4}, pat);
+    else if (o.pattern === 'dots') S.svg('circle', {cx: 5, cy: 5, r: 1.8, fill: col}, pat);
+    else {
+      S.svg('line', {x1: 0, y1: 9, x2: 18, y2: 9, stroke: col, 'stroke-width': o.pattern === 'plaid' ? 3 : 2}, pat);
+      S.svg('line', {x1: 9, y1: 0, x2: 9, y2: 18, stroke: col, 'stroke-width': 2}, pat);
+      if (o.pattern === 'plaid') S.svg('line', {x1: 0, y1: 3, x2: 18, y2: 3, stroke: col, 'stroke-width': 1.2}, pat);
+    }
+    S.svg('rect', {x: -120, y: -420, width: 240, height: 340, fill: 'url(#' + id + ')', opacity: 0.8}, g);
+  }
   function shoe(g, s, col) {
     const k = s === 'L' ? -1 : 1;
     S.path(g, S.xfShoe(k), col, null, {stroke: INK, 'stroke-width': 3.2, 'stroke-linejoin': 'round'});
@@ -296,6 +382,11 @@
   /** Build a CharacterRig config with the paper grammar. o: {name, skin, hair:[style,color], glasses, outfit, top, top2,
    *  bottom, shirt, tie, accent, shoe, eyeColor, stature}. */
   S.paper8 = function (o) {
+    const hairs = Object.keys(HAIR), outfits = Object.keys(OUTFIT).filter((k) => k !== 'vest');
+    const glassesOk = ['wire', 'rect', 'shades', 'thin-rect', 'round-thick', 'half-rim'];
+    if (!o.hair || !HAIR[o.hair[0]]) throw new Error('unknown hair "' + (o.hair && o.hair[0]) + '". valid: ' + hairs.join(', '));
+    if (!OUTFIT[o.outfit]) throw new Error('unknown outfit "' + o.outfit + '". valid: ' + outfits.join(', '));
+    if (o.glasses && glassesOk.indexOf(o.glasses) < 0) throw new Error('unknown glasses "' + o.glasses + '". valid: ' + glassesOk.join(', '));
     const skin = o.skin || '#E2BFA3';
     const g = geom(o);
     const H = g.HEAD, hs = g.headScale;
@@ -307,13 +398,15 @@
       outfit: o.outfit, top: o.top, top2: o.top2, bottom: o.bottom, shirt: o.shirt, tie: o.tie, accent: o.accent,
       shoe: o.shoe, eyeColor: o.eyeColor, browColor: o.browColor, stature: o.stature,
       shading: o.shading, lightSide: o.lightSide, headScale: o.headScale, bodyW: o.bodyW, legLen: o.legLen,
-      proportions: o.proportions, inkPx: o.inkPx, face: o.face || null
+      proportions: o.proportions, inkPx: o.inkPx, face: o.face || null,
+      armMode: o.armMode, motion: o.motion, pattern: o.pattern, patternColor: o.patternColor, vest: o.vest, view: o.view
     };
     const faceOpt = o.face || {};
     const browW = faceOpt.browW == null ? 3.8 : faceOpt.browW;
     const cfg = {
       name: o.name, paper: true, ink: 4.2, inkPx: o.inkPx == null ? 6 : o.inkPx, armW: 8, noBlush: true,
       shading: o.shading || 'hard', lightSide: o.lightSide == null ? -1 : o.lightSide,
+      armMode: o.armMode || 'noodle', motion: o.motion || 'smooth', view: o.view || 'F', breathAmp: o.breathAmp,
       view: view, geom: g, meta: meta,
       skin, skinShade: o.skinShade || '#C49A7C', lid: skin,
       shadowRx: 84, handScale: 1, handMount: [0, 15],
@@ -326,7 +419,7 @@
       face: {
         eyeY: H.cy + 6 * hs, eyeDX: 31 * hs, eyeRX: 8.6 * hs, eyeRY: 11.8 * hs, irisR: 8 * hs, eyeColor: o.eyeColor,
         browY: H.cy - 24 * hs, browDX: 15 * hs, browLen: 25 * hs, browW: browW * hs, browArch: (faceOpt.browArch == null ? 3 : faceOpt.browArch) * hs, browColor: faceOpt.browColor || o.browColor || INK,
-        matte: faceOpt.matte === true,
+        matte: faceOpt.matte === true, eyes: faceOpt.eyes || 'oval',
         mouthY: H.cy + 50 * hs, mouthScale: 1.5 * hs, cheekDX: 50 * hs, cheekY: H.cy + 30 * hs, templeX: H.r - 4 * hs, nose: null
       },
       draw: {
@@ -345,6 +438,8 @@
             S.path(c, `M${-100 * bw},-146 L${100 * bw},-146`, 'none', null, {stroke: INK, 'stroke-width': 2.4, opacity: 0.7});
           }
           OUTFIT[o.outfit](c, o);
+          if (o.vest) OUTFIT.vest(c, o);
+          if (o.pattern) drawPattern(c, ctx, o);
           bodyShade(c, ctx);
           S.path(gg, BEAN, 'none', null, {stroke: INK, 'stroke-width': 4.2, 'stroke-linejoin': 'round'});
         },
@@ -357,6 +452,14 @@
     if (o.glasses === 'wire') cfg.glasses = {shape: 'round', rx: 17 * hs, ry: 16 * hs, crooked: o.crooked || 0, color: '#1A1A1E', weight: 2.6 * hs, tint: 'rgba(220,235,245,0.10)', bridge: `M${-14 * hs} ${gy + 4 * hs} Q0 ${gy - 3 * hs} ${14 * hs} ${gy + 4 * hs}`};
     if (o.glasses === 'rect') cfg.glasses = {shape: 'rect', rx: 19 * hs, ry: 13 * hs, crooked: 0, color: '#1A1A1E', weight: 3 * hs, tint: 'rgba(220,235,245,0.08)', bridge: `M${-12 * hs} ${gy + 4 * hs} L${12 * hs} ${gy + 4 * hs}`};
     if (o.glasses === 'shades') cfg.glasses = {shape: 'rect', rx: 21 * hs, ry: 12.5 * hs, crooked: 0, color: '#0B0B0C', weight: 3 * hs, tint: 'rgba(14,16,22,0.92)', bridge: `M${-10 * hs} ${gy + 2 * hs} Q0 ${gy - 3 * hs} ${10 * hs} ${gy + 2 * hs}`};
+    if (o.glasses === 'thin-rect' || o.glasses === 'half-rim') cfg.glasses = {shape: 'rect', rx: 20 * hs, ry: 8 * hs, crooked: o.crooked || 0, color: '#1A1A1E', weight: 1.45 * hs, tint: 'rgba(220,235,245,0.05)', bridge: `M${-16 * hs} ${gy + 2 * hs} L${16 * hs} ${gy + 2 * hs}`};
+    if (o.glasses === 'round-thick') cfg.glasses = {shape: 'round', rx: 16 * hs, ry: 15 * hs, crooked: o.crooked || 0, color: '#1A1A1E', weight: 4 * hs, tint: 'rgba(220,235,245,0.08)', bridge: `M${-14 * hs} ${gy + 4 * hs} Q0 ${gy - 2 * hs} ${14 * hs} ${gy + 4 * hs}`};
+    const crown = H.cy - H.r * 0.15;
+    cfg.accessories = {
+      cap(ag) { S.path(ag, `M${-H.r * 0.7},${crown + 10} Q0,${crown - 28} ${H.r * 0.72},${crown + 8} L${H.r * 0.95},${crown + 18} L${-H.r * 0.2},${crown + 16} Z`, o.accent || '#1E2A44', null, {stroke: INK, 'stroke-width': 2.4}); },
+      beanie(ag) { S.path(ag, `M${-H.r * 0.62},${crown + 16} Q0,${crown - 46} ${H.r * 0.62},${crown + 16} Z`, o.accent || '#1E3A5F', null, {stroke: INK, 'stroke-width': 2.4}); },
+      hardhat(ag) { S.path(ag, `M${-H.r * 0.85},${crown + 18} L${H.r * 0.85},${crown + 18} L${H.r * 0.55},${crown - 8} L${-H.r * 0.55},${crown - 8} Z`, '#E2B657', null, {stroke: INK, 'stroke-width': 2.6}); }
+    };
     // held props for verbs (gesture "phone")
     cfg.heldProps = {
       phone(g) {
@@ -371,18 +474,19 @@
 
   // ---- the house cast, rebuilt on the paper grammar ------------------------------------------------------------------
   ['Milo', 'TheSuit', 'TheClipboard', 'TheSchemer'].forEach((k) => { if (Cast[k] && !Cast[k].paper) Cast[k + 'V1'] = Cast[k]; });
-  Cast.Milo = S.paper8({name: 'Milo', skin: '#EAC2A0', hair: ['tousle', '#2A211D'], glasses: 'wire', crooked: 2,
-    outfit: 'hoodie', top: '#C8302C', top2: '#A3231F', bottom: '#2F3A55', shoe: '#F1EFE8',
-    proportions: 'paper37', face: {matte: true, browW: 5.2}});
+  Cast.Milo = S.paper8({name: 'Milo', skin: '#EAC2A0', hair: ['curly', '#3A2A22'], glasses: 'thin-rect',
+    outfit: 'sweater', top: '#8E9298', top2: '#C8302C', trim: '#C8302C', shirt: '#F7F4EE', bottom: '#1E2A44', shoe: '#F4F1EA',
+    proportions: 'paper37', armMode: 'hug', motion: 'paper',
+    face: {matte: true, browW: 6.4, browArch: 1.4, eyes: 'dot'}});
   Cast.TheSuit = S.paper8({name: 'TheSuit', skin: '#E2BB98', hair: ['swept', '#A4A9AF'],
     outfit: 'suit', top: '#23283A', top2: '#151927', shirt: '#F4F1EA', tie: '#E8B43A', bottom: '#1C2030', shoe: '#141416', accent: '#F4EEDC',
-    proportions: 'paper37', face: {matte: true, browW: 6.8}});
+    proportions: 'paper37', armMode: 'hug', motion: 'paper', face: {matte: true, browW: 6.8}});
   Cast.TheClipboard = S.paper8({name: 'TheClipboard', skin: '#D9AC88', hair: ['parted', '#5A3A24'], glasses: 'rect',
     outfit: 'shirt', top: '#A9C6E6', shirt: '#F4F7FB', tie: '#25344F', bottom: '#B59A6E', shoe: '#5A3A24', accent: '#2563EB',
-    proportions: 'paper37', face: {matte: true, browW: 5.6}});
+    proportions: 'paper37', armMode: 'hug', motion: 'paper', face: {matte: true, browW: 5.6}});
   Cast.TheSchemer = S.paper8({name: 'TheSchemer', skin: '#C99474', skinShade: '#A8775A', hair: ['slick', '#1C1A1E'], glasses: 'shades',
     outfit: 'trench', top: '#B78A52', top2: '#94693A', shirt: '#26262B', bottom: '#26262B', shoe: '#2A1E16',
-    proportions: 'paper37', face: {matte: true, browW: 7.4}});
+    proportions: 'paper37', armMode: 'hug', motion: 'paper', face: {matte: true, browW: 7.4}});
   // TheClipboard keeps its clipboard in the right hand
   Cast.TheClipboard = Object.freeze(Object.assign({}, Cast.TheClipboard, {restHandR: 'grip-prop',
     draw: Object.assign({}, Cast.TheClipboard.draw, {mountR(g) { if (S.Props.clipboard) S.Props.clipboard(g, {x: 0, y: 26, scale: 0.42, rot: 180}); }})}));

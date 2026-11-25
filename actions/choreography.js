@@ -38,7 +38,7 @@
     up: [16, 2, 10, -24, 26, -10, 10, -10, -10, -16, -2.5]
   };
   A.walkTo = function (tl, ch, fromX, toX, start, dur, o) {
-    o = Object.assign({turn: 0.55, settle: 0.3, lean: 4}, o || {});
+    o = Object.assign({turn: o && o.profile ? 0 : 0.55, settle: 0.3, lean: 4}, o || {});
     const dir = Math.sign(toX - fromX) || 1, J = ch.J, sc = ch.p.scale;
     const leg = Math.hypot(J.kneeR[0] - J.hipR[0], J.kneeR[1] - J.hipR[1]) + Math.hypot(J.ankleR[0] - J.kneeR[0], J.ankleR[1] - J.kneeR[1]);
     const stride = (Math.sin(24 * Math.PI / 180) + Math.sin(20 * Math.PI / 180)) * leg * 0.95 * sc;
@@ -64,6 +64,8 @@
       const t0 = start + q0 + i * sd2, lead = i % 2 ? 'L' : 'R', q = sd2 / 4;
       put(t0 + q * 0, 'down', lead, q); put(t0 + q * 1, 'passing', lead === 'R' ? 'R' : 'L', q);
       put(t0 + q * 2, 'up', lead, q); put(t0 + q * 3, 'contact', lead === 'R' ? 'L' : 'R', q);
+      if (o.profile) tl.to(ch.p, {pelvisY: 8, duration: q, ease: 'sine.inOut'}, t0); 
+      if (o.profile) tl.to(ch.p, {pelvisY: 0, duration: q, ease: 'sine.inOut'}, t0 + q * 2);
     }
     // settle to a stand
     const end = start + dur, rest = ch.cfg.rest || {};
@@ -120,7 +122,13 @@
   };
   A.react = function (tl, ch, emotion, t, o) {
     o = Object.assign({big: emotion !== 'deadpan'}, o || {});
-    const e = A.EXPR[emotion]; if (!e) throw new Error('unknown emotion ' + emotion);
+    const src = A.EXPR[emotion]; if (!src) throw new Error('unknown emotion ' + emotion);
+    const e = Object.assign({}, src);
+    if (ch.cfg && ch.cfg.paper) {
+      ['browL', 'browR', 'browInner'].forEach((k) => { if (typeof e[k] === 'number') e[k] = Math.sign(e[k]) * Math.max(Math.abs(e[k]), 8); });
+      if (typeof e.browTiltL === 'number') e.browTiltL = Math.sign(e.browTiltL) * Math.max(Math.abs(e.browTiltL), 10);
+      if (typeof e.browTiltR === 'number') e.browTiltR = Math.sign(e.browTiltR) * Math.max(Math.abs(e.browTiltR), 10);
+    }
     const rest = ch.cfg.rest || {};
     const face = Object.assign({}, BASE, {lidL: rest.lidL == null ? 0.12 : rest.lidL, lidR: rest.lidR == null ? 0.12 : rest.lidR, blush: rest.blush == null ? 0.35 : rest.blush});
     for (const k in e) if (k in face || k in ch.p) face[k] = e[k];

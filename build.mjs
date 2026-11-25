@@ -34,6 +34,7 @@ const FONTS = [['archivo-black', 'archivo-black-latin-400-normal.woff2'], ['plus
 fs.mkdirSync(P('dist/fonts'), {recursive: true});
 for (const [pkg, file] of FONTS) fs.copyFileSync(P('node_modules/@fontsource', pkg, 'files', file), P('dist/fonts', file));
 fs.copyFileSync(P('lib/fonts.css'), P('dist/fonts.css'));
+if (fs.existsSync(P('lib/fonts/Kalam-Bold.ttf'))) fs.copyFileSync(P('lib/fonts/Kalam-Bold.ttf'), P('dist/fonts/Kalam-Bold.ttf'));
 console.log('dist/studio.js', (out.length / 1024).toFixed(1) + ' KB');
 if (process.argv.includes('--sync')) {
   for (const proj of ['previews/qa03', '../episodes/ep02-nk-remote-workers/skit-ch01', '../episodes/ep02-nk-remote-workers/film']) {

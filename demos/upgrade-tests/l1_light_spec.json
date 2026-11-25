@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "id": "l1-light",
+  "duration": 3,
+  "fps": 30,
+  "size": [1920, 1080],
+  "seed": 6,
+  "stills": [0.5, 1.5, 2.5],
+  "shots": [
+    {"t": 0, "dur": 1, "set": "paper", "lighting": "paper-day", "time": "day", "weather": "clear", "camera": {"x": 960, "y": 680, "zoom": 1.05, "preset": "static"}},
+    {"t": 1, "dur": 1, "set": "paper", "lighting": "paper-night", "time": "night", "weather": "clear", "camera": {"x": 1000, "y": 660, "zoom": 1.08, "preset": "static"}},
+    {"t": 2, "dur": 1, "set": "paper", "lighting": "paper-warm", "time": "dusk", "weather": "clear", "camera": {"x": 920, "y": 700, "zoom": 1.02, "preset": "static"}}
+  ],
+  "characters": [
+    {"id": "milo", "cast": "Milo", "set": "paper", "x": 960, "scale": 0.9, "workstation": false}
+  ]
+}

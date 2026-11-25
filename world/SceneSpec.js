@@ -121,6 +121,19 @@
           tl.fromTo(flash, {opacity: 0}, {opacity: 1, duration: 1 / fps, ease: 'none', immediateRender: false}, shot.t);
           tl.to(flash, {opacity: 0, duration: 1 / fps, ease: 'none'}, shot.t + 1 / fps);
         }
+        if (shot.transition === 'paper') {
+          const wipe = S.div({class: 'ss-paper-wipe', style: {position: 'absolute', inset: '0', background: '#E3E1D5', transform: 'translateX(-100%)', pointerEvents: 'none'}}, screen);
+          tl.fromTo(wipe, {xPercent: -100}, {xPercent: 100, duration: 6 / fps, ease: 'power2.inOut', immediateRender: false}, shot.t);
+        }
+        if (shot.transition === 'blackcard') {
+          const blk = S.div({class: 'ss-blackcard', style: {position: 'absolute', inset: '0', background: '#0B0B0C', opacity: 0, pointerEvents: 'none'}}, screen);
+          tl.fromTo(blk, {opacity: 0}, {opacity: 1, duration: 1 / fps, ease: 'none', immediateRender: false}, shot.t);
+          tl.to(blk, {opacity: 0, duration: 1 / fps, ease: 'none'}, shot.t + 1 / fps);
+        }
+        if (shot.transition === 'match') {
+          const disc = S.div({class: 'ss-match', style: {position: 'absolute', left: '50%', top: '46%', width: '80px', height: '80px', margin: '-40px 0 0 -40px', borderRadius: '50%', background: '#E3E1D5', opacity: 0, pointerEvents: 'none'}}, screen);
+          tl.fromTo(disc, {scale: 0.2, opacity: 0.9}, {scale: 18, opacity: 0, duration: 6 / fps, ease: 'power2.in', immediateRender: false}, shot.t);
+        }
         if (camIn.shake) {
           const sh = camIn.shake;
           const amp = Math.max(2, Math.min(4, sh.amp == null ? 3 : sh.amp));
@@ -193,6 +206,7 @@
           p: {x: c.x || 960, y: c.y != null ? c.y : rec.floorY, scale: c.scale || 0.82, facing: c.facing || 1}
         });
         if (c.lightSide != null && ch.tracks.lightSide) ch.tracks.lightSide.set(0, c.lightSide);
+        if (c.view && ch.tracks.view) ch.tracks.view.set(0, c.view);
         rec.chars.push(ch);
         cast.push(ch);
         if (c.brand) S.Brand.pin(ch, S.Brand.get(brands, c.brand));

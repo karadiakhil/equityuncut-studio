@@ -100,10 +100,11 @@
       tl.to(p, {[U]: prevU - dir * 7, duration: 0.09, ease: 'power1.in'}, t);
       t += 0.09;
     }
-    tl.to(p, {[U]: tg.U, duration: d, ease: o.ease === 'snap' ? 'power3.out' : 'power2.inOut'}, t);
-    tl.to(p, {[L]: tg.L, duration: d * 1.08, ease: o.ease === 'heavy' || o.ease === 'smooth' ? 'power2.out' : 'back.out(1.35)'}, t + 0.045);
-    tl.to(p, {[H]: tg.H, duration: d * 1.25, ease: 'back.out(2.2)'}, t + 0.09);
-    ch.tracks['hand' + s].set(t + d * 0.45, tg.pose);
+    const snapEase = o.ease === 'snap';
+    tl.to(p, {[U]: tg.U, duration: d, ease: snapEase ? 'back.out(1.6)' : 'power2.inOut'}, t);
+    tl.to(p, {[L]: tg.L, duration: snapEase ? d : d * 1.08, ease: snapEase ? 'back.out(1.6)' : (o.ease === 'heavy' || o.ease === 'smooth' ? 'power2.out' : 'back.out(1.35)')}, snapEase ? t : t + 0.045);
+    tl.to(p, {[H]: tg.H, duration: snapEase ? d : d * 1.25, ease: snapEase ? 'power4.out' : 'back.out(2.2)'}, snapEase ? t : t + 0.09);
+    ch.tracks['hand' + s].set(snapEase ? t : t + d * 0.45, tg.pose);
     ch.__arm = ch.__arm || {}; ch.__arm[U] = tg.U; ch.__arm[L] = tg.L; ch.__arm[H] = tg.H;
     return t + d * 1.3;
   }
@@ -161,14 +162,18 @@
       o = o || {};
       if (!POSE[name]) throw new Error('unknown gesture ' + name);
       if (!ch.cfg.paper) return legacyGesture(tl, ch, name, t, until, o);
-      const ease = o.ease || 'settle', d = o.dur || DUR[ease] || 0.34;
+      const snap = ch.cfg.motion === 'paper';
+      const frame = 3 / (S.FPS || 30);
+      const ease = o.ease || 'settle';
+      const d = snap ? frame : (o.dur || DUR[ease] || 0.34);
+      if (ch.tracks.arms) ch.tracks.arms.set(t, name === 'idle' ? (ch.cfg.armMode === 'hug' ? 'hug' : 'noodle') : 'noodle');
       const first = name === 'point' || name === 'phone' || name === 'wave' || name === 'explain' ? 'R' : (S.hash(ch.id + t) % 2 ? 'R' : 'L');
       const second = first === 'R' ? 'L' : 'R', lag = 0.06 + (S.hash(ch.id + ':lag:' + t) % 5) * 0.01;
       const tg = {R: target(ch, name, 'R'), L: target(ch, name, 'L')};
       if (ch.cfg.restHandR === 'grip-prop') tg.R.pose = 'grip-prop';
-      const ant = ease === 'anticipate' || ease === 'overshoot';
-      const e1 = reachArm(tl, ch, first, tg[first], t, d, {ant, ease});
-      const e2 = reachArm(tl, ch, second, tg[second], t + lag, d * 1.1, {ant: false, ease});
+      const ant = !snap && (ease === 'anticipate' || ease === 'overshoot');
+      const e1 = reachArm(tl, ch, first, tg[first], t, d, {ant, ease: snap ? 'snap' : ease});
+      const e2 = reachArm(tl, ch, second, tg[second], t + (snap ? frame : lag), d * (snap ? 1 : 1.1), {ant: false, ease: snap ? 'snap' : ease});
       ch.tracks.held.set(t + d * 0.4, tg.R.held);
       // body: lean toward a reaching gesture, head counters, shoulders lift on big moves
       const lean = {point: 3.5, explain: 2, wave: 2, phone: 1.5, 'hands-up': -2.5, fold: -1.5, idle: 0, type: 1.5}[name] || 0;
@@ -183,7 +188,7 @@
       else if (name === 'wave' && until > hold0 + 0.4) {
         const half = 0.15, n = Math.floor((Math.min(until, hold0 + 1.6) - hold0) / (half * 2));
         if (n >= 2) tl.to(ch.p, {keyframes: [{handR: tg.R.H + 16, armRL: tg.R.L - 6, duration: half}, {handR: tg.R.H - 14, armRL: tg.R.L + 4, duration: half}], repeat: n - 1, ease: 'sine.inOut'}, hold0);
-      } else {
+      } else if (!snap) {
         drift(tl, ch, first, tg[first], hold0, until - 0.05, S.hash(ch.id + ':d1:' + t));
         drift(tl, ch, second, tg[second], hold0 + 0.2, until - 0.05, S.hash(ch.id + ':d2:' + t));
       }
@@ -212,6 +217,11 @@
       ch.tracks.viseme.set(words[words.length - 1].end + 0.06, paper ? 'X' : null);
       words.forEach((w, i) => {
         if (!w.stress) return;
+        if (paper) {
+          const fr = 3 / (S.FPS || 30);
+          tl.fromTo(ch.p, {squash: 0.04}, {squash: -0.06, duration: fr, ease: 'power2.out', immediateRender: false}, w.start);
+          tl.to(ch.p, {squash: 0, duration: fr, ease: 'power2.inOut'}, w.start + fr);
+        }
         tl.to(ch.p, {head: 3.5 * (i % 2 ? -1 : 1), duration: 0.09, ease: 'power2.out'}, w.start - 0.03);
         tl.to(ch.p, {head: 0, duration: 0.26, ease: 'power2.inOut'}, w.start + 0.08);
         tl.to(ch.p, {browL: '-=4', browR: '-=4', duration: 0.08, ease: 'power2.out'}, w.start - 0.04);
@@ -239,7 +249,12 @@
         if (typeof k.scale === 'number') tl.set(ch.p, {scale: k.scale}, k.t);
         if (k.say && k.say.text) S.Direct.say(tl, ch, k.say.text, k.t, k.say.dur, k.say.words);
         if (k.mouth) ch.tracks.viseme.set(k.t, k.mouth);
-        if (k.walk) S.Act.walkTo(tl, ch, k.walk.from != null ? k.walk.from : ch.p.x, k.walk.to, k.t, k.walk.dur || 1.5);
+        if (k.view && ch.tracks.view) ch.tracks.view.set(k.t, k.view);
+        if (k.acc && ch.tracks.acc) ch.tracks.acc.set(k.t, [].concat(k.acc));
+        if (k.walk) {
+          const profile = (k.view || (ch.tracks.view && ch.tracks.view.at(k.t)) || ch.cfg.view) === 'P';
+          S.Act.walkTo(tl, ch, k.walk.from != null ? k.walk.from : ch.p.x, k.walk.to, k.t, k.walk.dur || 1.5, {profile: profile});
+        }
         if (k.blink) S.Act.blink(ch, k.t);
         if (!k.walk && next - k.t > 1.6) S.Act.idle(tl, ch, k.t + 0.45, next - 0.12, S.hash(ch.id + ':' + i), ch.desk ? 0.35 : 1);
       });
